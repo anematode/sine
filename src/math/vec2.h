@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <ostream>
+#include <complex>
 
 namespace Vis {
 
@@ -43,6 +44,11 @@ template <typename T = double> struct Vec2 {
   friend Vec2<U> operator/(V, const Vec2<U> &);
 
   std::string toString() const;
+
+  template <typename U>
+  explicit operator std::complex<U>() const {
+    return std::complex<U>(x, y);
+  }
 
   void operator+=(const Vec2 &);
   void operator-=(const Vec2 &);
@@ -162,7 +168,7 @@ template <typename T> void Vec2<T>::squish(T s) {
 }
 
 template <typename T> std::string Vec2<T>::toString() const {
-  return std::to_string(x) + ", " + std::to_string(y);
+  return '(' + std::to_string(x) + ',' + std::to_string(y) + ')';
 }
 
 template <typename T, typename U> Vec2<T> operator*(U n, const Vec2<T> &vec) {
@@ -175,7 +181,7 @@ template <typename T, typename U> Vec2<T> operator/(U n, const Vec2<T> &vec) {
 
 template <typename T>
 std::ostream &operator<<(std::ostream &os, const Vec2<T> &v) {
-  os << v.x << ", " << v.y;
+  os << '(' << v.x << ',' << v.y << ')';
   return os;
 }
 

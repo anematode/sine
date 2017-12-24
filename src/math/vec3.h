@@ -179,7 +179,7 @@ template <typename T> void Vec3<T>::squish(T s) {
 }
 
 template <typename T> std::string Vec3<T>::toString() const {
-  return std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z);
+  return '(' + std::to_string(x) + ',' + std::to_string(y) + ',' + std::to_string(z) + ')';
 }
 
 template <typename T, typename U> Vec3<T> operator*(U n, const Vec3<T> &vec) {
