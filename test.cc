@@ -1,10 +1,12 @@
-#include "src/math/vec2.h"
+#include "src/graphics/bitmap.h"
 #include <iostream>
 
 int main() {
-  Vis::Vec2f a{2, 3};
+  Vis::Bitmap p{400, 500};
 
-  std::complex<double> f{a};
+  for (int i = 0; i < p.getWidth(); i++) {
+    p.setPixel(i, i / 2 + 1, false);
+  }
 
-  std::cout << f << std::endl;
+  p.exportToFile("/Users/timoothy/Desktop/derp.pbm");
 }
