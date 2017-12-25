@@ -6,6 +6,13 @@
 #include <fstream>
 #include <exception>
 #include <iostream>
+#include "graymap.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#ifndef INCLUDE_STB_IMAGE_WRITE_H
+#include "../include/stb_image_write.h"
+#endif
 
 namespace Vis {
 
@@ -16,53 +23,37 @@ public:
   }
 
   void exportToBMP(std::string path) {
-    std::ofstream file;
-    file.open(path, std::ios_base::out | std::ios_base::binary);
+    Graymap temp = Graymap(getWidth(), getHeight());
 
-    file << 'B';
-    file << 'M';
+    for (int index = 0; index < getArea(); index++) {
+      temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
+    }
 
-    int filesize = 50;
-    unsigned short bfReserved1 = 0, bfReserved2 = 0;
-    int offset = 40;
-    int biSize = 40;
-
-    int biWidth = getWidth();
-    int biHeight = getHeight();
-
-    short biPlanes = 1;
-    short biBits = 1;
-
-    unsigned int compression = 0;
-    unsigned int imageSize = biWidth * biHeight / 8;
-
-    int xresolution = 10;
-    int yresolution = 10;
-
-    unsigned int ncolors = 2;
-
-
-    file << filesize;
-    file << bfReserved1;
-    file << bfReserved2;
-
-    file << offset;
-    file << biSize << biWidth << biHeight << biPlanes << biBits << compression << imageSize << xresolution << yresolution;
-
-
-    file.close();
+    temp.exportToBMP(path);
   }
 
-  void exportToJPEG(std::string file) {
+  void exportToJPEG(std::string path, int quality = 90) {
+    Graymap temp = Graymap(getWidth(), getHeight());
 
+    for (int index = 0; index < getArea(); index++) {
+      temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
+    }
+
+    temp.exportToJPEG(path, quality);
   }
 
-  void exportToGIF(std::string file) {
-
+  void exportToGIF(std::string path) {
+    throw std::logic_error("GIF output is not implemented for Bitmaps.");
   }
 
-  void exportToPNG(std::string file) {
+  void exportToPNG(std::string path) {
+    Graymap temp = Graymap(getWidth(), getHeight());
 
+    for (int index = 0; index < getArea(); index++) {
+      temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
+    }
+
+    temp.exportToPNG(path);
   }
 
   void exportToPBM(std::string path) {
@@ -104,12 +95,39 @@ public:
     file.close();
   }
 
-  void exportToPGM(std::string file) {
+  void exportToPGM(std::string path) {
+    std::ofstream file;
+    file.open(path, std::ios_base::out | std::ios_base::binary);
 
+    file << "P5\n";
+    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight()) << '\n';
+    file << "255";
+    file << '\n';
+
+    for (size_t index = 0; index < getArea(); index++) {
+      file << static_cast<uint8_t>(getPixel(index, false) ? 255 : 0);
+    }
+
+    file.close();
   }
 
-  void exportToPPM(std::string file) {
+  void exportToPPM(std::string path) {
+    std::ofstream file;
+    file.open(path, std::ios_base::out | std::ios_base::binary);
 
+    file << "P6\n";
+    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight()) << '\n';
+    file << "255";
+    file << '\n';
+
+    uint8_t c_out;
+
+    for (size_t index = 0; index < getArea(); index++) {
+      c_out = static_cast<uint8_t>(getPixel(index, false) ? 255 : 0);
+      file << c_out << c_out << c_out;
+    }
+
+    file.close();
   }
 
 

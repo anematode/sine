@@ -7,6 +7,12 @@
 #include <exception>
 #include <iostream>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#ifndef INCLUDE_STB_IMAGE_WRITE_H
+#include "../include/stb_image_write.h"
+#endif
+
 namespace Vis {
 
 class Graymap : public Pixmap<unsigned char> {
@@ -16,19 +22,19 @@ public:
   }
 
   void exportToBMP(std::string path) {
-    
+    stbi_write_bmp(path.c_str(), getWidth(), getHeight(), 1, static_cast<const void*>(getPixels()));
   }
 
-  void exportToJPEG(std::string file) {
-
+  void exportToJPEG(std::string path, int quality = 90) {
+    stbi_write_jpg(path.c_str(), getWidth(), getHeight(), 1, static_cast<const void*>(getPixels()), quality);
   }
 
   void exportToGIF(std::string file) {
-
+    throw std::logic_error("GIF output is not implemented for Graymaps.");
   }
 
   void exportToPNG(std::string file) {
-
+    stbi_write_png(file.c_str(), getWidth(), getHeight(), 1, static_cast<const void*>(getPixels()), getWidth());
   }
 
   void exportToPBM(std::string path) {
@@ -70,12 +76,39 @@ public:
     file.close();
   }
 
-  void exportToPGM(std::string file) {
+  void exportToPGM(std::string path) {
+    std::ofstream file;
+    file.open(path, std::ios_base::out | std::ios_base::binary);
 
+    file << "P5\n";
+    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight()) << '\n';
+    file << "255";
+    file << '\n';
+
+    for (size_t index = 0; index < getArea(); index++) {
+      file << getPixel(index, false);
+    }
+
+    file.close();
   }
 
-  void exportToPPM(std::string file) {
+  void exportToPPM(std::string path) {
+    std::ofstream file;
+    file.open(path, std::ios_base::out | std::ios_base::binary);
 
+    file << "P6\n";
+    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight()) << '\n';
+    file << "255";
+    file << '\n';
+
+    uint8_t c_out;
+
+    for (size_t index = 0; index < getArea(); index++) {
+      c_out = getPixel(index, false);
+      file << c_out << c_out << c_out;
+    }
+
+    file.close();
   }
 
 

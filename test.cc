@@ -8,5 +8,5 @@ int main() {
     p.setPixel(i, i / 2 + 1, false);
   }
 
-  p.exportToFile("/Users/timoothy/Desktop/derp.pbm");
+  p.exportToFile("/Users/timoothy/Desktop/derp.ppm");
 }

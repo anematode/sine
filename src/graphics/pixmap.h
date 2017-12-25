@@ -31,6 +31,7 @@ public:
 
   int getWidth() const;
   int getHeight() const;
+  PixelColor *getPixels() const;
   size_t getArea() const;
 
   inline bool indexContained(int index) const;
@@ -90,6 +91,10 @@ template <typename PixelColor> int Pixmap<PixelColor>::getHeight() const {
 
 template <typename PixelColor> size_t Pixmap<PixelColor>::getArea() const {
   return area;
+}
+
+template <typename PixelColor> PixelColor* Pixmap<PixelColor>::getPixels() const {
+  return pixels;
 }
 
 template <typename PixelColor>
