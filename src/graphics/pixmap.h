@@ -43,8 +43,6 @@ public:
 
   void setPixel(int index, PixelColor c, bool safe = true);
   void setPixel(int x, int y, PixelColor c, bool safe = true);
-  virtual void clear();
-  void fill(PixelColor color);
 
   virtual bool exportToFile(std::string file, ImageType type = ImageType::UNKNOWN);
 };
@@ -55,8 +53,6 @@ Pixmap<PixelColor>::Pixmap(int width, int height) {
   this->width = width;
   this->height = height;
   area = width * height;
-
-  clear();
 }
 
 template <typename PixelColor>
@@ -67,8 +63,6 @@ Pixmap<PixelColor>::Pixmap(const Pixmap& p) {
   this->width = p.width;
   this->height = p.height;
   area = width * height;
-
-  clear();
 }
 
 template <typename PixelColor>
@@ -160,14 +154,6 @@ void Pixmap<PixelColor>::setPixel(int x, int y, PixelColor c, bool safe) {
     return;
 
   pixels[pairToIndex(x, y)] = c;
-}
-
-template <typename PixelColor> void Pixmap<PixelColor>::clear() {
-  fill(255);
-}
-
-template <typename PixelColor> void Pixmap<PixelColor>::fill(PixelColor c) {
-  std::fill_n(pixels, area, c);
 }
 
 template <typename PixelColor>

@@ -1,12 +1,12 @@
-#include "src/graphics/bitmap.h"
+#include "src/graphics/rgbmap.h"
 #include <iostream>
 
 int main() {
-  Vis::Bitmap p{400, 500};
+  Vis::RGBMap p{400, 500};
 
   for (int i = 0; i < p.getWidth(); i++) {
-    p.setPixel(i, i / 2 + 1, false);
+    p.setPixel(i, i / 2 + 1, Vis::RGB(2, 5, 5));
   }
 
-  p.exportToFile("/Users/timoothy/Desktop/derp.ppm");
+  p.exportToFile("/Users/timoothy/Desktop/derp.jpg");
 }

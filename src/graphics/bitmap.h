@@ -182,6 +182,10 @@ public:
   void clear() {
     fill(true);
   }
+
+  void fill(unsigned char value) {
+    std::fill_n(getPixels(), getArea(), value);
+  }
 };
 
 }
