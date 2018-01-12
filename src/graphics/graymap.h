@@ -1,15 +1,15 @@
 #ifndef GRAYMAP_DEFINED_
 #define GRAYMAP_DEFINED_
 
-#include "pixmap.h"
 #include "imageutils.h"
-#include <fstream>
+#include "pixmap.h"
 #include <exception>
+#include <fstream>
 #include <iostream>
 
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#ifndef INCLUDE_STB_IMAGE_WRITE_H
 #include "../include/stb_image_write.h"
 #endif
 
@@ -17,16 +17,16 @@ namespace Vis {
 
 class Graymap : public Pixmap<unsigned char> {
 public:
-  Graymap(int width, int height) : Pixmap<unsigned char>(width, height) {
-
-  }
+  Graymap(int width, int height) : Pixmap<unsigned char>(width, height) {}
 
   void exportToBMP(std::string path) {
-    stbi_write_bmp(path.c_str(), getWidth(), getHeight(), 1, static_cast<const void*>(getPixels()));
+    stbi_write_bmp(path.c_str(), getWidth(), getHeight(), 1,
+                   static_cast<const void *>(getPixels()));
   }
 
   void exportToJPEG(std::string path, int quality = 90) {
-    stbi_write_jpg(path.c_str(), getWidth(), getHeight(), 1, static_cast<const void*>(getPixels()), quality);
+    stbi_write_jpg(path.c_str(), getWidth(), getHeight(), 1,
+                   static_cast<const void *>(getPixels()), quality);
   }
 
   void exportToGIF(std::string file) {
@@ -34,7 +34,8 @@ public:
   }
 
   void exportToPNG(std::string file) {
-    stbi_write_png(file.c_str(), getWidth(), getHeight(), 1, static_cast<const void*>(getPixels()), getWidth());
+    stbi_write_png(file.c_str(), getWidth(), getHeight(), 1,
+                   static_cast<const void *>(getPixels()), getWidth());
   }
 
   void exportToPBM(std::string path) {
@@ -42,7 +43,8 @@ public:
     file.open(path, std::ios_base::out | std::ios_base::binary);
 
     file << "P4\n";
-    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight()) << '\n';
+    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
+         << '\n';
 
     uint8_t byteOut;
     int bitCount;
@@ -81,7 +83,8 @@ public:
     file.open(path, std::ios_base::out | std::ios_base::binary);
 
     file << "P5\n";
-    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight()) << '\n';
+    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
+         << '\n';
     file << "255";
     file << '\n';
 
@@ -97,7 +100,8 @@ public:
     file.open(path, std::ios_base::out | std::ios_base::binary);
 
     file << "P6\n";
-    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight()) << '\n';
+    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
+         << '\n';
     file << "255";
     file << '\n';
 
@@ -111,12 +115,11 @@ public:
     file.close();
   }
 
-
   bool exportToFile(std::string file, ImageType type = ImageType::UNKNOWN) {
-    guessType:
+  guessType:
 
     switch (type) {
-      case ImageType::UNKNOWN:
+    case ImageType::UNKNOWN:
       type = extractImageType(file);
 
       if (type == ImageType::UNKNOWN) {
@@ -125,50 +128,46 @@ public:
 
       goto guessType;
 
-      case ImageType::BMP:
+    case ImageType::BMP:
       exportToBMP(file);
       break;
 
-      case ImageType::JPEG:
+    case ImageType::JPEG:
       exportToJPEG(file);
       break;
 
-      case ImageType::GIF:
+    case ImageType::GIF:
       exportToGIF(file);
       break;
 
-      case ImageType::PNG:
+    case ImageType::PNG:
       exportToPNG(file);
       break;
 
-      case ImageType::PBM:
+    case ImageType::PBM:
       exportToPBM(file);
       break;
 
-      case ImageType::PGM:
+    case ImageType::PGM:
       exportToPGM(file);
       break;
 
-      case ImageType::PPM:
+    case ImageType::PPM:
       exportToPPM(file);
       break;
 
-      default:
+    default:
       return false;
     }
 
     return true;
   }
 
-  void clear() {
-    fill(255);
-  }
+  void clear() { fill(255); }
 
-  void fill(unsigned char value) {
-    std::fill_n(getPixels(), getArea(), value);
-  }
+  void fill(unsigned char value) { std::fill_n(getPixels(), getArea(), value); }
 };
 
-}
+} // namespace Vis
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef RGBMAP_DEFINED_
-#define RGBMAP_DEFINED_
+#ifndef RGBAMap_DEFINED_
+#define RGBAMap_DEFINED_
 
 #include "imageutils.h"
 #include "pixmap.h"
@@ -18,55 +18,38 @@
 
 namespace Vis {
 
-class RGBMap : public Pixmap<RGB> {
+class RGBAMap : public Pixmap<RGBA> {
 public:
-  RGBMap(int width, int height) : Pixmap<RGB>(width, height) {}
+  RGBAMap(int width, int height) : Pixmap<RGBA>(width, height) {}
 
   void exportToBMP(std::string path) {
-    stbi_write_bmp(path.c_str(), getWidth(), getHeight(), 3,
-                   static_cast<void *>(getPixels()));
+    throw std::logic_error("BMP output is not implemented for RGBAMaps.");
   }
 
   void exportToJPEG(std::string path, int quality = 90) {
-    stbi_write_jpg(path.c_str(), getWidth(), getHeight(), 3,
+    stbi_write_jpg(path.c_str(), getWidth(), getHeight(), 4,
                    static_cast<void *>(getPixels()), quality);
   }
 
   void exportToGIF(std::string file) {
-    throw std::logic_error("GIF output is not implemented for RGBMaps.");
+    throw std::logic_error("GIF output is not implemented for RGBAMaps.");
   }
 
   void exportToPNG(std::string file) {
-    stbi_write_png(file.c_str(), getWidth(), getHeight(), 3,
+    stbi_write_png(file.c_str(), getWidth(), getHeight(), 4,
                    static_cast<void *>(getPixels()), getWidth());
   }
 
   void exportToPBM(std::string path) {
-    throw std::logic_error("PBM output is not implemented for RGBMaps.");
+    throw std::logic_error("PBM output is not implemented for RGBAMaps.");
   }
 
   void exportToPGM(std::string path) {
-    throw std::logic_error("PGM output is not implemented for RGBMaps.");
+    throw std::logic_error("PGM output is not implemented for RGBAMaps.");
   }
 
   void exportToPPM(std::string path) {
-    std::ofstream file;
-    file.open(path, std::ios_base::out | std::ios_base::binary);
-
-    file << "P6\n";
-    file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
-         << '\n';
-    file << "255";
-    file << '\n';
-
-    RGB c_out = RGB(0, 0, 0);
-
-    for (size_t index = 0; index < getArea(); index++) {
-      c_out = getPixel(index, false);
-      file << c_out.r << c_out.g << c_out.b;
-    }
-
-    file.close();
+    throw std::logic_error("PPM output is not implemented for RGBAMaps.");
   }
 
   bool exportToFile(std::string file, ImageType type = ImageType::UNKNOWN) {
@@ -117,15 +100,16 @@ public:
     return true;
   }
 
-  void fill(RGB rgb) {
+  void fill(RGBA rgba) {
     for (size_t i = 0; i < getArea(); i++) {
-      setPixel(i, rgb, false);
+      setPixel(i, rgba, false);
     }
   }
 
   void clear() {
-    RGB copyF;
+    RGBA copyF;
     copyF.r = copyF.g = copyF.b = 255;
+    copyF.a = 0;
     fill(copyF);
   }
 };

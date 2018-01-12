@@ -7,10 +7,15 @@
 #include <exception>
 #include <iostream>
 
-#include "imageutils.h"
 #include "../math/vec2.h"
+#include "imageutils.h"
 
 namespace Vis {
+
+  /**
+Pixmap is the base class for Graymap, Bitmap, RGBMap and RGBMap
+Basically it just abstracts a 2D array of pixels, given a template argument for the pixel itself
+  **/
 
 template <typename PixelColor> class Pixmap {
 private:
@@ -20,9 +25,14 @@ private:
   size_t area;
 
 public:
+  const static int ColorSize = sizeof(PixelColor);
+
   Pixmap(int width, int height);
-  Pixmap(const Pixmap& p);
-  Pixmap(Pixmap&& p);
+  Pixmap(const Pixmap &p);
+  Pixmap& operator=(const Pixmap& a) = default;
+  Pixmap(Pixmap &&p);
+
+  void copyFrom(const Pixmap& p);
 
   ~Pixmap();
 
@@ -34,6 +44,9 @@ public:
   PixelColor *getPixels() const;
   size_t getArea() const;
 
+  void setPixelPointer(PixelColor* p);
+  void setPixelPointer(void* p);
+
   inline bool indexContained(int index) const;
   inline bool pairContained(int x, int y) const;
   inline int pairToIndex(int x, int y) const;
@@ -44,7 +57,8 @@ public:
   void setPixel(int index, PixelColor c, bool safe = true);
   void setPixel(int x, int y, PixelColor c, bool safe = true);
 
-  virtual bool exportToFile(std::string file, ImageType type = ImageType::UNKNOWN);
+  virtual bool exportToFile(std::string file,
+                            ImageType type = ImageType::UNKNOWN);
 };
 
 template <typename PixelColor>
@@ -55,8 +69,7 @@ Pixmap<PixelColor>::Pixmap(int width, int height) {
   area = width * height;
 }
 
-template <typename PixelColor>
-Pixmap<PixelColor>::Pixmap(const Pixmap& p) {
+template <typename PixelColor> Pixmap<PixelColor>::Pixmap(const Pixmap &p) {
   pixels = new PixelColor[p.width * p.height];
   std::copy(p.pixels, pixels);
 
@@ -65,10 +78,25 @@ Pixmap<PixelColor>::Pixmap(const Pixmap& p) {
   area = width * height;
 }
 
-template <typename PixelColor>
-Pixmap<PixelColor>::Pixmap(Pixmap&& p) {
-  pixels = p.pixels;
-  p.pixels = nullptr;
+template <typename PixelColor> Pixmap<PixelColor>::Pixmap(Pixmap &&p) {
+  if (p.width == width && p.height == height) {
+    pixels = p.pixels;
+    p.pixels = nullptr;
+  } else {
+    throw std::logic_error("Pixmaps must be of the same dimensions for a move constructor.");
+  }
+}
+
+template <typename PixelColor> void Pixmap<PixelColor>::copyFrom(const Pixmap<PixelColor>& p) {
+  if (p.getWidth() != width || p.getHeight() != height) {
+    throw std::logic_error("Pixmaps must be of the same dimensions for copying.");
+  } else {
+    for (int i = 0; i < p.getWidth(); i++) {
+      for (int j = 0; j < p.getHeight(); j++) {
+        setPixel(i, j, p.getPixel(i, j));
+      }
+    }
+  }
 }
 
 template <typename PixelColor> Pixmap<PixelColor>::~Pixmap() {
@@ -87,7 +115,16 @@ template <typename PixelColor> size_t Pixmap<PixelColor>::getArea() const {
   return area;
 }
 
-template <typename PixelColor> PixelColor* Pixmap<PixelColor>::getPixels() const {
+template <typename PixelColor> void Pixmap<PixelColor>::setPixelPointer(PixelColor* p) {
+  pixels = p;
+}
+
+template <typename PixelColor> void Pixmap<PixelColor>::setPixelPointer(void* p) {
+  pixels = static_cast<PixelColor*>(p);
+}
+
+template <typename PixelColor>
+PixelColor *Pixmap<PixelColor>::getPixels() const {
   return pixels;
 }
 

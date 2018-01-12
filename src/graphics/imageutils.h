@@ -58,6 +58,6 @@ ImageType extractImageType(std::string filename) noexcept {
   return ImageType::UNKNOWN;
 }
 
-}
+} // namespace Vis
 
 #endif
