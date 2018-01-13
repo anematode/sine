@@ -29,7 +29,6 @@ public:
 
   Pixmap(int width, int height);
   Pixmap(const Pixmap &p);
-  Pixmap& operator=(const Pixmap& a) = default;
   Pixmap(Pixmap &&p);
 
   void copyFrom(const Pixmap& p);

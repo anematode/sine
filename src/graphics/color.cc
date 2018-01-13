@@ -35,7 +35,7 @@ namespace Vis {
     return HSL(hue, sat, lum);
   }
 
-  float hueToRGB(double p, double q, double t){
+  float hueToRGB(float p, float q, float t) {
       if (t < 0) t += 1;
       if (t > 1) t -= 1;
       if (t < 1/6.0) return p + (q - p) * 6 * t;

@@ -64,7 +64,7 @@ int main() {
   using namespace Vis;
 
   ImageLoader<RGBMap> loader;
-  auto image = loader.load("/Users/timoothy/Downloads/dad_test.jpg");
+  auto image = loader.load("/Users/timoothy/Downloads/beautiful_brandon.jpg");
 
   filter(image);
 
@@ -72,7 +72,6 @@ int main() {
     for (int j = 0; j < image->getHeight(); j++) {
       Color lum = image->getPixel(i, j);
 
-      process(lum);
       image->setPixel(i, j, lum);
     }
   }
