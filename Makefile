@@ -3,7 +3,7 @@ CXX ?= g++
 SRC_EXT = cc
 SRC_PATH = .
 LIBS =
-COMPILE_FLAGS = -O2 -std=c++11 -Wall -Wextra -g
+COMPILE_FLAGS = -O2 -std=c++14 -Wall -Wextra -g
 RCOMPILE_FLAGS = -D NDEBUG
 DCOMPILE_FLAGS = -D DEBUG
 INCLUDES = -I $(SRC_PATH)

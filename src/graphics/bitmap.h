@@ -23,7 +23,7 @@ public:
   void exportToBMP(std::string path) {
     Graymap temp = Graymap(getWidth(), getHeight());
 
-    for (int index = 0; index < getArea(); index++) {
+    for (size_t index = 0; index < getArea(); index++) {
       temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
     }
 
@@ -33,7 +33,7 @@ public:
   void exportToJPEG(std::string path, int quality = 90) {
     Graymap temp = Graymap(getWidth(), getHeight());
 
-    for (int index = 0; index < getArea(); index++) {
+    for (size_t index = 0; index < getArea(); index++) {
       temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
     }
 
