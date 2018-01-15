@@ -25,6 +25,7 @@ private:
   size_t area;
 
 public:
+  using PixelType = PixelColor;
   const static int ColorSize = sizeof(PixelColor);
 
   Pixmap(int width, int height);
@@ -32,6 +33,9 @@ public:
   Pixmap(Pixmap &&p);
 
   void copyFrom(const Pixmap& p);
+
+  PixelColor* begin();
+  PixelColor* end();
 
   ~Pixmap();
 
@@ -78,6 +82,14 @@ template <typename PixelColor> Pixmap<PixelColor>::Pixmap(const Pixmap &p) {
   this->width = p.width;
   this->height = p.height;
   area = width * height;
+}
+
+template <typename PixelColor> PixelColor* Pixmap<PixelColor>::begin() {
+  return pixels;
+}
+
+template <typename PixelColor> PixelColor* Pixmap<PixelColor>::end() {
+  return pixels + area;
 }
 
 template <typename PixelColor> Pixmap<PixelColor>::Pixmap(Pixmap &&p) {

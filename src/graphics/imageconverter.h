@@ -16,13 +16,16 @@ namespace Vis {
     LUM = LUMINOSITY
   };
 
-  template <typename TypeA, typename TypeB, ImageConversionParam opt = ImageConversionParam::LUM>
+  template <typename TypeA, ImageConversionParam opt = ImageConversionParam::LUM>
   struct ImageConverter {
-    std::unique_ptr<TypeB> convert(TypeA& a);
+    static std::unique_ptr<TypeA> convert(RGBMap& a);
+    static std::unique_ptr<TypeA> convert(RGBAMap& a);
+    static std::unique_ptr<TypeA> convert(Bitmap& a);
+    static std::unique_ptr<TypeA> convert(Graymap& a);
   };
 
   template <>
-  std::unique_ptr<RGBMap> ImageConverter<RGBAMap, RGBMap>::convert(RGBAMap& a) {
+  std::unique_ptr<RGBMap> ImageConverter<RGBMap>::convert(RGBAMap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -37,7 +40,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<RGBAMap> ImageConverter<RGBMap, RGBAMap>::convert(RGBMap& a) {
+  std::unique_ptr<RGBAMap> ImageConverter<RGBAMap>::convert(RGBMap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -50,7 +53,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<Graymap> ImageConverter<RGBMap, Graymap, ImageConversionParam::AVERAGE>::convert(RGBMap& a) {
+  std::unique_ptr<Graymap> ImageConverter<Graymap, ImageConversionParam::AVERAGE>::convert(RGBMap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -65,7 +68,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<Graymap> ImageConverter<RGBMap, Graymap, ImageConversionParam::LUMINOSITY>::convert(RGBMap& a) {
+  std::unique_ptr<Graymap> ImageConverter<Graymap, ImageConversionParam::LUMINOSITY>::convert(RGBMap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -80,7 +83,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<Graymap> ImageConverter<RGBAMap, Graymap, ImageConversionParam::AVERAGE>::convert(RGBAMap& a) {
+  std::unique_ptr<Graymap> ImageConverter<Graymap, ImageConversionParam::AVERAGE>::convert(RGBAMap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -95,7 +98,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<Graymap> ImageConverter<RGBAMap, Graymap, ImageConversionParam::LUMINOSITY>::convert(RGBAMap& a) {
+  std::unique_ptr<Graymap> ImageConverter<Graymap, ImageConversionParam::LUMINOSITY>::convert(RGBAMap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -110,7 +113,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<RGBMap> ImageConverter<Graymap, RGBMap>::convert(Graymap& a) {
+  std::unique_ptr<RGBMap> ImageConverter<RGBMap>::convert(Graymap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -124,7 +127,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<RGBAMap> ImageConverter<Graymap, RGBAMap>::convert(Graymap& a) {
+  std::unique_ptr<RGBAMap> ImageConverter<RGBAMap>::convert(Graymap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -138,7 +141,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<RGBAMap> ImageConverter<Bitmap, RGBAMap>::convert(Bitmap& a) {
+  std::unique_ptr<RGBAMap> ImageConverter<RGBAMap>::convert(Bitmap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -152,7 +155,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<RGBMap> ImageConverter<Bitmap, RGBMap>::convert(Bitmap& a) {
+  std::unique_ptr<RGBMap> ImageConverter<RGBMap>::convert(Bitmap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -166,7 +169,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<Graymap> ImageConverter<Bitmap, Graymap>::convert(Bitmap& a) {
+  std::unique_ptr<Graymap> ImageConverter<Graymap>::convert(Bitmap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -180,7 +183,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<Bitmap> ImageConverter<RGBMap, Bitmap, ImageConversionParam::AVERAGE>::convert(RGBMap& a) {
+  std::unique_ptr<Bitmap> ImageConverter<Bitmap, ImageConversionParam::AVERAGE>::convert(RGBMap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -196,7 +199,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<Bitmap> ImageConverter<RGBMap, Bitmap, ImageConversionParam::LUMINOSITY>::convert(RGBMap& a) {
+  std::unique_ptr<Bitmap> ImageConverter<Bitmap, ImageConversionParam::LUMINOSITY>::convert(RGBMap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -212,7 +215,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<Bitmap> ImageConverter<RGBAMap, Bitmap, ImageConversionParam::AVERAGE>::convert(RGBAMap& a) {
+  std::unique_ptr<Bitmap> ImageConverter<Bitmap, ImageConversionParam::AVERAGE>::convert(RGBAMap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -228,7 +231,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<Bitmap> ImageConverter<RGBAMap, Bitmap, ImageConversionParam::LUMINOSITY>::convert(RGBAMap& a) {
+  std::unique_ptr<Bitmap> ImageConverter<Bitmap, ImageConversionParam::LUMINOSITY>::convert(RGBAMap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
@@ -244,7 +247,7 @@ namespace Vis {
   }
 
   template <>
-  std::unique_ptr<Bitmap> ImageConverter<Graymap, Bitmap>::convert(Graymap& a) {
+  std::unique_ptr<Bitmap> ImageConverter<Bitmap>::convert(Graymap& a) {
     int width = a.getWidth();
     int height = a.getHeight();
 
