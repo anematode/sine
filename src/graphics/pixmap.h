@@ -53,6 +53,9 @@ public:
   PixelColor getPixel(int index, bool safe = true) const;
   PixelColor getPixel(int x, int y, bool safe = true) const;
 
+  PixelColor& getPixelRef(int index, bool safe = true);
+  PixelColor& getPixelRef(int x, int y, bool safe = true);
+
   void setPixel(int index, PixelColor c, bool safe = true);
   void setPixel(int x, int y, PixelColor c, bool safe = true);
 
@@ -170,6 +173,22 @@ PixelColor Pixmap<PixelColor>::getPixel(int index, bool safe) const {
 
 template <typename PixelColor>
 PixelColor Pixmap<PixelColor>::getPixel(int x, int y, bool safe) const {
+  if (safe)
+    checkPair(x, y);
+
+  return pixels[pairToIndex(x, y)];
+}
+
+template <typename PixelColor>
+PixelColor& Pixmap<PixelColor>::getPixelRef(int index, bool safe) {
+  if (safe)
+    checkIndex(index);
+
+  return pixels[index];
+}
+
+template <typename PixelColor>
+PixelColor& Pixmap<PixelColor>::getPixelRef(int x, int y, bool safe) {
   if (safe)
     checkPair(x, y);
 

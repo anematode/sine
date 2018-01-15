@@ -38,7 +38,7 @@ public:
 
   void exportToPNG(std::string file) {
     stbi_write_png(file.c_str(), getWidth(), getHeight(), 3,
-                   static_cast<void *>(getPixels()), getWidth());
+                   static_cast<void *>(getPixels()), 3 * getWidth());
   }
 
   void exportToPBM(std::string path) {
