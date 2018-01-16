@@ -39,7 +39,7 @@ double constexpr c_sqrt(double x) {
              : std::numeric_limits<double>::quiet_NaN();
 }
 
-const int MULT_FACTOR_LOG2 = 10;
+const int MULT_FACTOR_LOG2 = 13;
 const int MULT_FACTOR = 2 << MULT_FACTOR_LOG2;
 
 constexpr int getGFactor(size_t index, int stddevs100) {
@@ -76,11 +76,16 @@ template <size_t index, int stddevs100> struct MetaFunc {
   enum { value = getGFactor(index, stddevs100) };
 };
 
+constexpr unsigned long sum(const unsigned int array[], int pos_first_elem, int pos_last_elem) {
+  return (pos_first_elem == pos_last_elem) ? array[pos_first_elem] : array[pos_first_elem] + sum(array, pos_first_elem + 1, pos_last_elem);
+}
+
 }; // namespace GenerateGaussian
 template <unsigned int size> class GaussianBlur : public Filter {
 private:
   typedef typename GenerateGaussian::generate_array<
       size + 1, 50 * size, GenerateGaussian::MetaFunc>::result gaussian_gen;
+  static unsigned long denominator;
 
 public:
   void applyTo(Bitmap &map);
@@ -96,6 +101,9 @@ template <unsigned int size> void GaussianBlur<size>::print() {
     std::cout << gaussian_gen::data[i] << ' ';
   }
 }
+
+template <unsigned int size>
+unsigned long GaussianBlur<size>::denominator = GenerateGaussian::sum(gaussian_gen::data, 1, size + 1) * 2 + gaussian_gen::data[0];
 
 template <unsigned int size> void GaussianBlur<size>::applyTo(Bitmap &map) {
   int width = map.getWidth();
@@ -120,7 +128,7 @@ template <unsigned int size> void GaussianBlur<size>::applyTo(Bitmap &map) {
         graySum += a[x_f] ? 0 : 256 * multiplier;
       }
 
-      graySum /= GenerateGaussian::MULT_FACTOR;
+      graySum /= denominator;
 
       map.setPixel(x_s, y_s, (graySum < 128));
     }
@@ -142,7 +150,7 @@ template <unsigned int size> void GaussianBlur<size>::applyTo(Bitmap &map) {
         graySum += a[y_f] ? 0 : 256 * multiplier;
       }
 
-      graySum /= GenerateGaussian::MULT_FACTOR;
+      graySum /= denominator;
 
       map.setPixel(x_s, y_s, (graySum < 128));
     }
@@ -172,7 +180,7 @@ template <unsigned int size> void GaussianBlur<size>::applyTo(Graymap &map) {
         graySum += multiplier * a[x_f];
       }
 
-      graySum /= GenerateGaussian::MULT_FACTOR;
+      graySum /= denominator;
 
       map.setPixel(x_s, y_s, graySum);
     }
@@ -194,7 +202,7 @@ template <unsigned int size> void GaussianBlur<size>::applyTo(Graymap &map) {
         graySum += multiplier * a[y_f];
       }
 
-      graySum /= GenerateGaussian::MULT_FACTOR;
+      graySum /= denominator;
 
       map.setPixel(x_s, y_s, graySum);
     }
@@ -226,9 +234,9 @@ template <unsigned int size> void GaussianBlur<size>::applyTo(RGBMap &map) {
         bSum += multiplier * a[x_f].b;
       }
 
-      rSum /= GenerateGaussian::MULT_FACTOR;
-      gSum /= GenerateGaussian::MULT_FACTOR;
-      bSum /= GenerateGaussian::MULT_FACTOR;
+      rSum /= denominator;
+      gSum /= denominator;
+      bSum /= denominator;
 
       map.setPixel(x_s, y_s, Vis::RGB(rSum, gSum, bSum));
     }
@@ -252,9 +260,9 @@ template <unsigned int size> void GaussianBlur<size>::applyTo(RGBMap &map) {
         bSum += multiplier * a[y_f].b;
       }
 
-      rSum /= GenerateGaussian::MULT_FACTOR;
-      gSum /= GenerateGaussian::MULT_FACTOR;
-      bSum /= GenerateGaussian::MULT_FACTOR;
+      rSum /= denominator;
+      gSum /= denominator;
+      bSum /= denominator;
 
       map.setPixel(x_s, y_s, Vis::RGB(rSum, gSum, bSum));
     }
@@ -287,10 +295,10 @@ template <unsigned int size> void GaussianBlur<size>::applyTo(RGBAMap &map) {
         aSum += multiplier * a[x_f].a;
       }
 
-      rSum /= GenerateGaussian::MULT_FACTOR;
-      gSum /= GenerateGaussian::MULT_FACTOR;
-      bSum /= GenerateGaussian::MULT_FACTOR;
-      aSum /= GenerateGaussian::MULT_FACTOR;
+      rSum /= denominator;
+      gSum /= denominator;
+      bSum /= denominator;
+      aSum /= denominator;
 
       map.setPixel(x_s, y_s, Vis::RGBA(rSum, gSum, bSum, aSum));
     }
@@ -315,10 +323,10 @@ template <unsigned int size> void GaussianBlur<size>::applyTo(RGBAMap &map) {
         aSum += multiplier * a[y_f].a;
       }
 
-      rSum /= GenerateGaussian::MULT_FACTOR;
-      gSum /= GenerateGaussian::MULT_FACTOR;
-      bSum /= GenerateGaussian::MULT_FACTOR;
-      aSum /= GenerateGaussian::MULT_FACTOR;
+      rSum /= denominator;
+      gSum /= denominator;
+      bSum /= denominator;
+      aSum /= denominator;
 
       map.setPixel(x_s, y_s, Vis::RGBA(rSum, gSum, bSum, aSum));
     }
