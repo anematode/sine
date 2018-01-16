@@ -45,9 +45,9 @@ namespace Vis {
     }
 
   RGB HSL::rgb() const {
-    float h_c = h / 256.0;
-    float s_c = s / 256.0;
-    float l_c = l / 256.0;
+    float h_c = h / 255.0;
+    float s_c = s / 255.0;
+    float l_c = l / 255.0;
 
     float q = l_c < 0.5 ? l_c * (1 + s_c) : l_c + s_c - l_c * s_c;
     float p = 2 * l_c - q;
