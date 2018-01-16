@@ -239,7 +239,7 @@ template <unsigned int size> void GaussianBlur<size>::applyTo(RGBMap &map) {
       a[y_s] = map.getPixel(x_s, y_s);
     }
 
-    for (int y_s = 0; y_s < width; y_s++) {
+    for (int y_s = 0; y_s < height; y_s++) {
       long rSum = 0, gSum = 0, bSum = 0;
       int multiplier;
 

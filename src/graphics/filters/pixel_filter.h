@@ -2,8 +2,6 @@
 #define PIXEL_FILTER_DEFINED_
 
 #include "filter.h"
-#include <utility>
-#include <type_traits>
 
 namespace Vis {
   namespace Filters {
