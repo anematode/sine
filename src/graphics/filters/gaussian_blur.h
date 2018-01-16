@@ -2,6 +2,7 @@
 #define GAUSSIAN_BLUR_DEFINED_
 
 #include "filter.h"
+#include "../mask.h"
 #include <iostream>
 #include <limits>
 
@@ -92,6 +93,11 @@ public:
   void applyTo(Graymap &map);
   void applyTo(RGBMap &map);
   void applyTo(RGBAMap &map);
+
+  void applyTo(Bitmask &mask);
+  void applyTo(Graymask &mask);
+  void applyTo(RGBMask &mask);
+  void applyTo(RGBAMask &mask);
 
   void print();
 };
@@ -270,6 +276,236 @@ template <unsigned int size> void GaussianBlur<size>::applyTo(RGBMap &map) {
 }
 
 template <unsigned int size> void GaussianBlur<size>::applyTo(RGBAMap &map) {
+  int width = map.getWidth();
+  int height = map.getHeight();
+  int size_nu = size;
+
+  Vis::RGBA a[std::max(width, height)];
+
+  for (int y_s = 0; y_s < height; y_s++) {
+    for (int x_s = 0; x_s < width; x_s++) {
+      a[x_s] = map.getPixel(x_s, y_s);
+    }
+
+    for (int x_s = 0; x_s < width; x_s++) {
+      long rSum = 0, gSum = 0, bSum = 0, aSum = 0;
+      int multiplier;
+
+      for (int x_f = std::max(0, x_s - size_nu), loc = x_f - x_s;
+           x_f <= std::min(width - 1, x_s + size_nu); x_f++, loc++) {
+        multiplier = gaussian_gen::data[std::abs(loc)];
+
+        rSum += multiplier * a[x_f].r;
+        gSum += multiplier * a[x_f].g;
+        bSum += multiplier * a[x_f].b;
+        aSum += multiplier * a[x_f].a;
+      }
+
+      rSum /= denominator;
+      gSum /= denominator;
+      bSum /= denominator;
+      aSum /= denominator;
+
+      map.setPixel(x_s, y_s, Vis::RGBA(rSum, gSum, bSum, aSum));
+    }
+  }
+
+  for (int x_s = 0; x_s < width; x_s++) {
+    for (int y_s = 0; y_s < height; y_s++) {
+      a[y_s] = map.getPixel(x_s, y_s);
+    }
+
+    for (int y_s = 0; y_s < height; y_s++) {
+      long rSum = 0, gSum = 0, bSum = 0, aSum = 0;
+      int multiplier;
+
+      for (int y_f = std::max(0, y_s - size_nu), loc = y_f - y_s;
+           y_f <= std::min(height - 1, y_s + size_nu); y_f++, loc++) {
+        multiplier = gaussian_gen::data[std::abs(loc)];
+
+        rSum += multiplier * a[y_f].r;
+        gSum += multiplier * a[y_f].g;
+        bSum += multiplier * a[y_f].b;
+        aSum += multiplier * a[y_f].a;
+      }
+
+      rSum /= denominator;
+      gSum /= denominator;
+      bSum /= denominator;
+      aSum /= denominator;
+
+      map.setPixel(x_s, y_s, Vis::RGBA(rSum, gSum, bSum, aSum));
+    }
+
+
+  }
+}
+
+template <unsigned int size> void GaussianBlur<size>::applyTo(Bitmask &map) {
+  int width = map.getWidth();
+  int height = map.getHeight();
+  int size_nu = size;
+
+  bool a[std::max(width, height)];
+
+  for (int y_s = 0; y_s < height; y_s++) {
+    for (int x_s = 0; x_s < width; x_s++) {
+      a[x_s] = map.getPixel(x_s, y_s);
+    }
+
+    for (int x_s = 0; x_s < width; x_s++) {
+      long graySum = 0;
+      int multiplier;
+
+      for (int x_f = std::max(0, x_s - size_nu), loc = x_f - x_s;
+           x_f <= std::min(width - 1, x_s + size_nu); x_f++, loc++) {
+        multiplier = gaussian_gen::data[std::abs(loc)];
+
+        graySum += a[x_f] ? 0 : 256 * multiplier;
+      }
+
+      graySum /= denominator;
+
+      map.setPixel(x_s, y_s, (graySum < 128));
+    }
+  }
+
+  for (int x_s = 0; x_s < width; x_s++) {
+    for (int y_s = 0; y_s < height; y_s++) {
+      a[y_s] = map.getPixel(x_s, y_s);
+    }
+
+    for (int y_s = 0; y_s < height; y_s++) {
+      long graySum = 0;
+      int multiplier;
+
+      for (int y_f = std::max(0, y_s - size_nu), loc = y_f - y_s;
+           y_f <= std::min(width - 1, y_s + size_nu); y_f++, loc++) {
+        multiplier = gaussian_gen::data[std::abs(loc)];
+
+        graySum += a[y_f] ? 0 : 256 * multiplier;
+      }
+
+      graySum /= denominator;
+
+      map.setPixel(x_s, y_s, (graySum < 128));
+    }
+  }
+}
+
+template <unsigned int size> void GaussianBlur<size>::applyTo(Graymask &map) {
+  int width = map.getWidth();
+  int height = map.getHeight();
+  int size_nu = size;
+
+  unsigned char a[std::max(width, height)];
+
+  for (int y_s = 0; y_s < height; y_s++) {
+    for (int x_s = 0; x_s < width; x_s++) {
+      a[x_s] = map.getPixel(x_s, y_s);
+    }
+
+    for (int x_s = 0; x_s < width; x_s++) {
+      long graySum = 0;
+      int multiplier;
+
+      for (int x_f = std::max(0, x_s - size_nu), loc = x_f - x_s;
+           x_f <= std::min(width - 1, x_s + size_nu); x_f++, loc++) {
+        multiplier = gaussian_gen::data[std::abs(loc)];
+
+        graySum += multiplier * a[x_f];
+      }
+
+      graySum /= denominator;
+
+      map.setPixel(x_s, y_s, graySum);
+    }
+  }
+
+  for (int x_s = 0; x_s < width; x_s++) {
+    for (int y_s = 0; y_s < height; y_s++) {
+      a[y_s] = map.getPixel(x_s, y_s);
+    }
+
+    for (int y_s = 0; y_s < height; y_s++) {
+      long graySum = 0;
+      int multiplier;
+
+      for (int y_f = std::max(0, y_s - size_nu), loc = y_f - y_s;
+           y_f <= std::min(height - 1, y_s + size_nu); y_f++, loc++) {
+        multiplier = gaussian_gen::data[std::abs(loc)];
+
+        graySum += multiplier * a[y_f];
+      }
+
+      graySum /= denominator;
+
+      map.setPixel(x_s, y_s, graySum);
+    }
+  }
+}
+
+template <unsigned int size> void GaussianBlur<size>::applyTo(RGBMask &map) {
+  int width = map.getWidth();
+  int height = map.getHeight();
+  int size_nu = size;
+
+  Vis::RGB a[std::max(width, height)];
+
+  for (int y_s = 0; y_s < height; y_s++) {
+    for (int x_s = 0; x_s < width; x_s++) {
+      a[x_s] = map.getPixel(x_s, y_s);
+    }
+
+    for (int x_s = 0; x_s < width; x_s++) {
+      long rSum = 0, gSum = 0, bSum = 0;
+      int multiplier;
+
+      for (int x_f = std::max(0, x_s - size_nu), loc = x_f - x_s;
+           x_f <= std::min(width - 1, x_s + size_nu); x_f++, loc++) {
+        multiplier = gaussian_gen::data[std::abs(loc)];
+
+        rSum += multiplier * a[x_f].r;
+        gSum += multiplier * a[x_f].g;
+        bSum += multiplier * a[x_f].b;
+      }
+
+      rSum /= denominator;
+      gSum /= denominator;
+      bSum /= denominator;
+
+      map.setPixel(x_s, y_s, Vis::RGB(rSum, gSum, bSum));
+    }
+  }
+
+  for (int x_s = 0; x_s < width; x_s++) {
+    for (int y_s = 0; y_s < height; y_s++) {
+      a[y_s] = map.getPixel(x_s, y_s);
+    }
+
+    for (int y_s = 0; y_s < height; y_s++) {
+      long rSum = 0, gSum = 0, bSum = 0;
+      int multiplier;
+
+      for (int y_f = std::max(0, y_s - size_nu), loc = y_f - y_s;
+           y_f <= std::min(height - 1, y_s + size_nu); y_f++, loc++) {
+        multiplier = gaussian_gen::data[std::abs(loc)];
+
+        rSum += multiplier * a[y_f].r;
+        gSum += multiplier * a[y_f].g;
+        bSum += multiplier * a[y_f].b;
+      }
+
+      rSum /= denominator;
+      gSum /= denominator;
+      bSum /= denominator;
+
+      map.setPixel(x_s, y_s, Vis::RGB(rSum, gSum, bSum));
+    }
+  }
+}
+
+template <unsigned int size> void GaussianBlur<size>::applyTo(RGBAMask &map) {
   int width = map.getWidth();
   int height = map.getHeight();
   int size_nu = size;
