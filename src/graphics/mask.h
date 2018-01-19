@@ -1,7 +1,7 @@
 #ifndef MASK_DEFINED_
 #define MASK_DEFINED_
 
-#error "This doesn't work yet!"
+//#error "This doesn't work yet!"
 
 #include "pixmap.h"
 #include "color.h"

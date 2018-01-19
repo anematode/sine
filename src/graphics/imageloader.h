@@ -1,9 +1,6 @@
 #include "imageutils.h"
 #include "color.h"
 #include "pixmap.h"
-#include "graymap.h"
-#include "rgbamap.h"
-#include "rgbmap.h"
 
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION

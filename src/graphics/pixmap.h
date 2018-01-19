@@ -9,16 +9,24 @@
 
 #include "../math/vec2.h"
 #include "imageutils.h"
+#include "color.h"
+#include <fstream>
+
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#include "../include/stb_image_write.h"
+#endif
 
 namespace Vis {
 
   /**
-Pixmap is the base class for Graymap, Bitmap, RGBMap and RGBMap
+Pixmap is the base class for Pixmap<unsigned char>, Bitmap, RGBMap and RGBMap
 Basically it just abstracts a 2D array of pixels, given a template argument for the pixel itself
   **/
 
 template <typename PixelColor> class Pixmap {
-private:
+protected:
   PixelColor *pixels;
   int width;
   int height;
@@ -29,7 +37,7 @@ public:
   const static int ColorSize = sizeof(PixelColor);
 
   Pixmap(int width, int height);
-  Pixmap(const Pixmap &p);
+  Pixmap(const Pixmap<PixelColor> &p);
   Pixmap(Pixmap &&p);
 
   void copyFrom(const Pixmap& p);
@@ -63,8 +71,15 @@ public:
   void setPixel(int index, PixelColor c, bool safe = true);
   void setPixel(int x, int y, PixelColor c, bool safe = true);
 
-  virtual bool exportToFile(std::string file,
+  bool exportToFile(std::string file,
                             ImageType type = ImageType::UNKNOWN);
+  void exportToBMP(std::string file);
+  void exportToJPEG(std::string file, int quality = 90);
+  void exportToGIF(std::string file);
+  void exportToPNG(std::string file);
+  void exportToPBM(std::string file);
+  void exportToPPM(std::string file);
+  void exportToPGM(std::string file);
 };
 
 template <typename PixelColor>
@@ -75,9 +90,11 @@ Pixmap<PixelColor>::Pixmap(int width, int height) {
   area = width * height;
 }
 
-template <typename PixelColor> Pixmap<PixelColor>::Pixmap(const Pixmap &p) {
+template <typename PixelColor> Pixmap<PixelColor>::Pixmap(const Pixmap<PixelColor> &p) {
   pixels = new PixelColor[p.width * p.height];
-  std::copy(p.pixels, pixels);
+  for (int i = 0; i < p.width * p.height; i++) {
+    pixels[i] = p.pixels[i];
+  }
 
   this->width = p.width;
   this->height = p.height;
@@ -225,9 +242,372 @@ void Pixmap<PixelColor>::setPixel(int x, int y, PixelColor c, bool safe) {
 
 template <typename PixelColor>
 bool Pixmap<PixelColor>::exportToFile(std::string file, ImageType type) {
-  throw std::logic_error("This function is not implemented generically.");
+  guessType:
+
+    switch (type) {
+    case ImageType::UNKNOWN:
+      type = extractImageType(file);
+
+      if (type == ImageType::UNKNOWN) {
+        return false;
+      }
+
+      goto guessType;
+
+    case ImageType::BMP:
+      exportToBMP(file);
+      break;
+
+    case ImageType::JPEG:
+      exportToJPEG(file);
+      break;
+
+    case ImageType::GIF:
+      exportToGIF(file);
+      break;
+
+    case ImageType::PNG:
+      exportToPNG(file);
+      break;
+
+    case ImageType::PBM:
+      exportToPBM(file);
+      break;
+
+    case ImageType::PGM:
+      exportToPGM(file);
+      break;
+
+    case ImageType::PPM:
+      exportToPPM(file);
+      break;
+
+    default:
+      return false;
+    }
+
+    return true;
+}
+
+template <>
+void Pixmap<unsigned char>::exportToBMP(std::string path) {
+  stbi_write_bmp(path.c_str(), getWidth(), getHeight(), 1,
+                 static_cast<const void *>(getPixels()));
+}
+
+template <>
+void Pixmap<unsigned char>::exportToJPEG(std::string path, int quality) {
+  stbi_write_jpg(path.c_str(), getWidth(), getHeight(), 1,
+                 static_cast<const void *>(getPixels()), quality);
+}
+
+template <>
+void Pixmap<unsigned char>::exportToGIF(std::string file) {
+  throw std::logic_error("GIF output is not implemented for Graymaps.");
+}
+
+template <>
+void Pixmap<unsigned char>::exportToPNG(std::string file) {
+  stbi_write_png(file.c_str(), getWidth(), getHeight(), 1,
+                 static_cast<const void *>(getPixels()), getWidth());
+}
+
+template <>
+void Pixmap<unsigned char>::exportToPBM(std::string path) {
+  std::ofstream file;
+  file.open(path, std::ios_base::out | std::ios_base::binary);
+
+  file << "P4\n";
+  file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
+       << '\n';
+
+  uint8_t byteOut;
+  int bitCount;
+
+  int width = getWidth();
+
+  for (int i = 0; i < getHeight(); i++) {
+    bitCount = 0;
+    byteOut = 0;
+
+    for (int j = 0; j < width; j++) {
+      if (bitCount > 7) {
+        file << byteOut;
+
+        bitCount = 0;
+        byteOut = 0;
+      }
+
+      if (getPixel(j, i, false) < 128) {
+        byteOut |= 1U << (7 - bitCount);
+      }
+
+      bitCount++;
+    }
+
+    if (bitCount != 0) {
+      file << byteOut;
+    }
+  }
+
+  file.close();
+}
+
+template <>
+void Pixmap<unsigned char>::exportToPGM(std::string path) {
+  std::ofstream file;
+  file.open(path, std::ios_base::out | std::ios_base::binary);
+
+  file << "P5\n";
+  file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
+       << '\n';
+  file << "255";
+  file << '\n';
+
+  for (size_t index = 0; index < getArea(); index++) {
+    file << getPixel(index, false);
+  }
+
+  file.close();
+}
+
+template <>
+void Pixmap<unsigned char>::exportToPPM(std::string path) {
+  std::ofstream file;
+  file.open(path, std::ios_base::out | std::ios_base::binary);
+
+  file << "P6\n";
+  file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
+       << '\n';
+  file << "255";
+  file << '\n';
+
+  uint8_t c_out;
+
+  for (size_t index = 0; index < getArea(); index++) {
+    c_out = getPixel(index, false);
+    file << c_out << c_out << c_out;
+  }
+
+  file.close();
+}
+
+template <>
+void Pixmap<bool>::exportToBMP(std::string path) {
+  Pixmap<unsigned char> temp(getWidth(), getHeight());
+
+  for (size_t index = 0; index < getArea(); index++) {
+    temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
+  }
+
+  temp.exportToBMP(path);
+}
+
+template <>
+void Pixmap<bool>::exportToJPEG(std::string path, int quality) {
+  Pixmap<unsigned char> temp = Pixmap<unsigned char>(getWidth(), getHeight());
+
+  for (size_t index = 0; index < getArea(); index++) {
+    temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
+  }
+
+  temp.exportToJPEG(path, quality);
+}
+
+template <>
+void Pixmap<bool>::exportToGIF(std::string path) {
+  throw std::logic_error("GIF output is not implemented for Bitmaps.");
+}
+
+template <>
+void Pixmap<bool>::exportToPNG(std::string path) {
+  Pixmap<unsigned char> temp = Pixmap<unsigned char>(getWidth(), getHeight());
+
+  for (int index = 0; index < getArea(); index++) {
+    temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
+  }
+
+  temp.exportToPNG(path);
+}
+
+template <>
+void Pixmap<bool>::exportToPBM(std::string path) {
+  std::ofstream file;
+  file.open(path, std::ios_base::out | std::ios_base::binary);
+
+  file << "P4\n";
+  file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
+       << '\n';
+
+  uint8_t byteOut;
+  int bitCount;
+
+  int width = getWidth();
+
+  for (int i = 0; i < getHeight(); i++) {
+    bitCount = 0;
+    byteOut = 0;
+
+    for (int j = 0; j < width; j++) {
+      if (bitCount > 7) {
+        file << byteOut;
+
+        bitCount = 0;
+        byteOut = 0;
+      }
+
+      if (!getPixel(j, i, false)) {
+        byteOut |= 1U << (7 - bitCount);
+      }
+
+      bitCount++;
+    }
+
+    if (bitCount != 0) {
+      file << byteOut;
+    }
+  }
+
+  file.close();
+}
+
+template <>
+void Pixmap<bool>::exportToPGM(std::string path) {
+  std::ofstream file;
+  file.open(path, std::ios_base::out | std::ios_base::binary);
+
+  file << "P5\n";
+  file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
+       << '\n';
+  file << "255";
+  file << '\n';
+
+  for (size_t index = 0; index < getArea(); index++) {
+    file << static_cast<uint8_t>(getPixel(index, false) ? 255 : 0);
+  }
+
+  file.close();
+}
+
+template <>
+void Pixmap<bool>::exportToPPM(std::string path) {
+  std::ofstream file;
+  file.open(path, std::ios_base::out | std::ios_base::binary);
+
+  file << "P6\n";
+  file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
+       << '\n';
+  file << "255";
+  file << '\n';
+
+  uint8_t c_out;
+
+  for (size_t index = 0; index < getArea(); index++) {
+    c_out = static_cast<uint8_t>(getPixel(index, false) ? 255 : 0);
+    file << c_out << c_out << c_out;
+  }
+
+  file.close();
+}
+
+typedef Pixmap<bool> Bitmap;
+
+template<>
+void Pixmap<RGB>::exportToBMP(std::string path) {
+  stbi_write_bmp(path.c_str(), getWidth(), getHeight(), 3,
+                 static_cast<void *>(getPixels()));
+}
+
+template<>
+void Pixmap<RGB>::exportToJPEG(std::string path, int quality) {
+  stbi_write_jpg(path.c_str(), getWidth(), getHeight(), 3,
+                 static_cast<void *>(getPixels()), quality);
+}
+
+template<>
+void Pixmap<RGB>::exportToGIF(std::string file) {
+  throw std::logic_error("GIF output is not implemented for RGBMaps.");
+}
+
+template<>
+void Pixmap<RGB>::exportToPNG(std::string file) {
+  stbi_write_png(file.c_str(), getWidth(), getHeight(), 3,
+                 static_cast<void *>(getPixels()), 3 * getWidth());
+}
+
+template<>
+void Pixmap<RGB>::exportToPBM(std::string path) {
+  throw std::logic_error("PBM output is not implemented for RGBMaps.");
+}
+
+template<>
+void Pixmap<RGB>::exportToPGM(std::string path) {
+  throw std::logic_error("PGM output is not implemented for RGBMaps.");
+}
+
+template<>
+void Pixmap<RGB>::exportToPPM(std::string path) {
+  std::ofstream file;
+  file.open(path, std::ios_base::out | std::ios_base::binary);
+
+  file << "P6\n";
+  file << std::to_string(getWidth()) << ' ' << std::to_string(getHeight())
+       << '\n';
+  file << "255";
+  file << '\n';
+
+  RGB c_out = RGB(0, 0, 0);
+
+  for (size_t index = 0; index < getArea(); index++) {
+    c_out = getPixel(index, false);
+    file << c_out.r << c_out.g << c_out.b;
+  }
+
+  file.close();
+}
+
+typedef Pixmap<RGB> RGBMap;
+typedef Pixmap<unsigned char> Graymap;
+typedef Pixmap<RGBA> RGBAMap;
+
+template<>
+void Pixmap<RGBA>::exportToBMP(std::string path) {
+  throw std::logic_error("BMP output is not implemented for RGBAMaps.");
+}
+
+template<>
+void Pixmap<RGBA>::exportToJPEG(std::string path, int quality) {
+  stbi_write_jpg(path.c_str(), getWidth(), getHeight(), 4,
+                 static_cast<void *>(getPixels()), quality);
+}
+
+template<>
+void Pixmap<RGBA>::exportToGIF(std::string file) {
+  throw std::logic_error("GIF output is not implemented for RGBAMaps.");
+}
+
+template<>
+void Pixmap<RGBA>::exportToPNG(std::string file) {
+  stbi_write_png(file.c_str(), getWidth(), getHeight(), 4,
+                 static_cast<void *>(getPixels()), 4 * getWidth());
+}
+
+template<>
+void Pixmap<RGBA>::exportToPBM(std::string path) {
+  throw std::logic_error("PBM output is not implemented for RGBAMaps.");
+}
+
+template<>
+void Pixmap<RGBA>::exportToPGM(std::string path) {
+  throw std::logic_error("PGM output is not implemented for RGBAMaps.");
+}
+
+template<>
+void Pixmap<RGBA>::exportToPPM(std::string path) {
+  throw std::logic_error("PPM output is not implemented for RGBAMaps.");
 }
 
 } // namespace Vis
+
 
 #endif
