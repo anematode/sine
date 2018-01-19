@@ -15,13 +15,13 @@
 #ifndef STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "../include/stb_image_write.h"
+#include "stb_image_write.h"
 #endif
 
 namespace Vis {
 
   /**
-Pixmap is the base class for Pixmap<unsigned char>, Bitmap, RGBMap and RGBMap
+Pixmap is the base class for Pixmap<uint8_t>, Bitmap, RGBMap and RGBMap
 Basically it just abstracts a 2D array of pixels, given a template argument for the pixel itself
   **/
 
@@ -38,7 +38,7 @@ public:
 
   Pixmap(int width, int height);
   Pixmap(const Pixmap<PixelColor> &p);
-  Pixmap(Pixmap &&p);
+  Pixmap(Pixmap &&p) noexcept;
 
   void copyFrom(const Pixmap& p);
 
@@ -83,10 +83,10 @@ public:
 };
 
 template <typename PixelColor>
-Pixmap<PixelColor>::Pixmap(int width, int height) {
-  pixels = new PixelColor[width * height];
-  this->width = width;
-  this->height = height;
+Pixmap<PixelColor>::Pixmap(int w, int h) {
+  pixels = new PixelColor[w * h];
+  width = w;
+  height = h;
   area = width * height;
 }
 
@@ -109,7 +109,7 @@ template <typename PixelColor> PixelColor* Pixmap<PixelColor>::end() {
   return pixels + area;
 }
 
-template <typename PixelColor> Pixmap<PixelColor>::Pixmap(Pixmap &&p) {
+template <typename PixelColor> Pixmap<PixelColor>::Pixmap(Pixmap &&p) noexcept {
   if (p.width == width && p.height == height) {
     pixels = p.pixels;
     p.pixels = nullptr;
@@ -281,39 +281,36 @@ bool Pixmap<PixelColor>::exportToFile(std::string file, ImageType type) {
     case ImageType::PPM:
       exportToPPM(file);
       break;
-
-    default:
-      return false;
     }
 
     return true;
 }
 
 template <>
-void Pixmap<unsigned char>::exportToBMP(std::string path) {
+void Pixmap<uint8_t>::exportToBMP(std::string path) {
   stbi_write_bmp(path.c_str(), getWidth(), getHeight(), 1,
                  static_cast<const void *>(getPixels()));
 }
 
 template <>
-void Pixmap<unsigned char>::exportToJPEG(std::string path, int quality) {
+void Pixmap<uint8_t>::exportToJPEG(std::string path, int quality) {
   stbi_write_jpg(path.c_str(), getWidth(), getHeight(), 1,
                  static_cast<const void *>(getPixels()), quality);
 }
 
 template <>
-void Pixmap<unsigned char>::exportToGIF(std::string file) {
+void Pixmap<uint8_t>::exportToGIF(std::string file) {
   throw std::logic_error("GIF output is not implemented for Graymaps.");
 }
 
 template <>
-void Pixmap<unsigned char>::exportToPNG(std::string file) {
+void Pixmap<uint8_t>::exportToPNG(std::string file) {
   stbi_write_png(file.c_str(), getWidth(), getHeight(), 1,
                  static_cast<const void *>(getPixels()), getWidth());
 }
 
 template <>
-void Pixmap<unsigned char>::exportToPBM(std::string path) {
+void Pixmap<uint8_t>::exportToPBM(std::string path) {
   std::ofstream file;
   file.open(path, std::ios_base::out | std::ios_base::binary);
 
@@ -354,7 +351,7 @@ void Pixmap<unsigned char>::exportToPBM(std::string path) {
 }
 
 template <>
-void Pixmap<unsigned char>::exportToPGM(std::string path) {
+void Pixmap<uint8_t>::exportToPGM(std::string path) {
   std::ofstream file;
   file.open(path, std::ios_base::out | std::ios_base::binary);
 
@@ -372,7 +369,7 @@ void Pixmap<unsigned char>::exportToPGM(std::string path) {
 }
 
 template <>
-void Pixmap<unsigned char>::exportToPPM(std::string path) {
+void Pixmap<uint8_t>::exportToPPM(std::string path) {
   std::ofstream file;
   file.open(path, std::ios_base::out | std::ios_base::binary);
 
@@ -394,7 +391,7 @@ void Pixmap<unsigned char>::exportToPPM(std::string path) {
 
 template <>
 void Pixmap<bool>::exportToBMP(std::string path) {
-  Pixmap<unsigned char> temp(getWidth(), getHeight());
+  Pixmap<uint8_t> temp(getWidth(), getHeight());
 
   for (size_t index = 0; index < getArea(); index++) {
     temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
@@ -405,7 +402,7 @@ void Pixmap<bool>::exportToBMP(std::string path) {
 
 template <>
 void Pixmap<bool>::exportToJPEG(std::string path, int quality) {
-  Pixmap<unsigned char> temp = Pixmap<unsigned char>(getWidth(), getHeight());
+  Pixmap<uint8_t> temp = Pixmap<uint8_t>(getWidth(), getHeight());
 
   for (size_t index = 0; index < getArea(); index++) {
     temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
@@ -421,7 +418,7 @@ void Pixmap<bool>::exportToGIF(std::string path) {
 
 template <>
 void Pixmap<bool>::exportToPNG(std::string path) {
-  Pixmap<unsigned char> temp = Pixmap<unsigned char>(getWidth(), getHeight());
+  Pixmap<uint8_t> temp = Pixmap<uint8_t>(getWidth(), getHeight());
 
   for (int index = 0; index < getArea(); index++) {
     temp.setPixel(index, (getPixel(index, false) ? 255 : 0));
@@ -556,9 +553,9 @@ void Pixmap<RGB>::exportToPPM(std::string path) {
   file << "255";
   file << '\n';
 
-  RGB c_out = RGB(0, 0, 0);
+  RGB c_out(0, 0, 0);
 
-  for (size_t index = 0; index < getArea(); index++) {
+  for (int index = 0; index < getArea(); index++) {
     c_out = getPixel(index, false);
     file << c_out.r << c_out.g << c_out.b;
   }
@@ -567,7 +564,7 @@ void Pixmap<RGB>::exportToPPM(std::string path) {
 }
 
 typedef Pixmap<RGB> RGBMap;
-typedef Pixmap<unsigned char> Graymap;
+typedef Pixmap<uint8_t> Graymap;
 typedef Pixmap<RGBA> RGBAMap;
 
 template<>
