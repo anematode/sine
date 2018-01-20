@@ -7,151 +7,164 @@
 #include "color.h"
 
 namespace Vis {
-  template <typename PixelColor>
-  class Mask {
-  public:
-    virtual int getWidth() const = 0;
-    virtual int getHeight() const = 0;
-    virtual int getArea() const = 0;
+    template<typename PixelColor>
+    class Mask {
+    public:
+        virtual int getWidth() const = 0;
 
-    virtual bool pixelAllowed(int i) const = 0;
-    virtual bool pixelAllowed(int x, int y) const = 0;
+        virtual int getHeight() const = 0;
 
-    virtual PixelColor getPixel(int i, bool safe = true) = 0;
-    virtual PixelColor getPixel(int x, int y, bool safe = true) = 0;
+        virtual int getArea() const = 0;
 
-    virtual void setPixel(int x, int y, PixelColor k, bool safe = true) = 0;
-    virtual void setPixel(int i, PixelColor k, bool safe = true) = 0;
-  };
+        virtual bool pixelAllowed(int i) const = 0;
 
-  typedef Mask<bool> Bitmask;
-  typedef Mask<unsigned char> Graymask;
-  typedef Mask<RGB> RGBMask;
-  typedef Mask<RGBA> RGBAMask;
+        virtual bool pixelAllowed(int x, int y) const = 0;
 
-  template <typename PixelColor>
-  class SimpleMask : public Mask<PixelColor> {
-  private:
-    Pixmap<PixelColor>* map;
-    bool* maskPointer;
+        virtual PixelColor getPixel(int i, bool safe = true) = 0;
 
-    int width, height, area;
-  public:
-    SimpleMask(Pixmap<PixelColor>* p);
-    ~SimpleMask();
+        virtual PixelColor getPixel(int x, int y, bool safe = true) = 0;
 
-    int pairToIndex(int x, int y) const;
+        virtual void setPixel(int x, int y, PixelColor k, bool safe = true) = 0;
 
-    bool pixelAllowed(int i) const;
-    bool pixelAllowed(int x, int y) const;
+        virtual void setPixel(int i, PixelColor k, bool safe = true) = 0;
+    };
 
-    int getWidth() const;
-    int getHeight() const;
-    int getArea() const;
+    typedef Mask<bool> Bitmask;
+    typedef Mask<unsigned char> Graymask;
+    typedef Mask<RGB> RGBMask;
+    typedef Mask<RGBA> RGBAMask;
 
-    void allowPixel(int i);
-    void allowPixel(int x, int y);
+    /*template<typename PixelColor>
+    class SimpleMask : public Mask<PixelColor> {
+    private:
+        Pixmap <PixelColor> *map;
+        bool *maskPointer;
 
-    void disallowPixel(int i);
-    void disallowPixel(int x, int y);
+        int width, height, area;
+    public:
+        SimpleMask(Pixmap <PixelColor> *p);
 
-    PixelColor getPixel(int x, int y, bool safe = true);
-    PixelColor getPixel(int i, bool safe = true);
+        ~SimpleMask();
 
-    void setPixel(int x, int y, PixelColor k, bool safe = true);
-    void setPixel(int i, PixelColor k, bool safe = true);
-  };
+        int pairToIndex(int x, int y) const;
 
-  template <typename PixelColor>
-  SimpleMask<PixelColor>::SimpleMask(Pixmap<PixelColor>* p) {
-    map = p;
+        bool pixelAllowed(int i) const;
 
-    width = p->getWidth();
-    height = p->getHeight();
-    area = p->getArea();
+        bool pixelAllowed(int x, int y) const;
 
-    maskPointer = new bool[width * height]();
-  }
+        int getWidth() const;
 
-  template <typename PixelColor>
-  SimpleMask<PixelColor>::~SimpleMask() {
-    delete[] maskPointer;
-  }
+        int getHeight() const;
 
-  template <typename PixelColor>
-  int SimpleMask<PixelColor>::pairToIndex(int x, int y) const {
-    return x * width + y;
-  }
+        int getArea() const;
 
-  template <typename PixelColor>
-  bool SimpleMask<PixelColor>::pixelAllowed(int i) const {
-    return (i >= 0 && i < area && maskPointer[i]);
-  }
+        void allowPixel(int i);
 
-  template <typename PixelColor>
-  bool SimpleMask<PixelColor>::pixelAllowed(int x, int y) const {
-    return (x >= 0 && x < width && y >= 0 && y < height && maskPointer[pairToIndex(x, y)]);
-  }
+        void allowPixel(int x, int y);
 
-  template <typename PixelColor>
-  void SimpleMask<PixelColor>::allowPixel(int i) {
-    maskPointer[i] = true;
-  }
+        void disallowPixel(int i);
 
-  template <typename PixelColor>
-  void SimpleMask<PixelColor>::allowPixel(int x, int y) {
-    maskPointer[pairToIndex(x, y)] = true;
-  }
+        void disallowPixel(int x, int y);
 
-  template <typename PixelColor>
-  void SimpleMask<PixelColor>::disallowPixel(int i) {
-    maskPointer[i] = false;
-  }
+        PixelColor getPixel(int x, int y, bool safe = true);
 
-  template <typename PixelColor>
-  void SimpleMask<PixelColor>::disallowPixel(int x, int y) {
-    maskPointer[pairToIndex(x, y)] = false;
-  }
+        PixelColor getPixel(int i, bool safe = true);
 
-  template <typename PixelColor>
-  int SimpleMask<PixelColor>::getWidth() const {
-    return width;
-  }
+        void setPixel(int x, int y, PixelColor k, bool safe = true);
 
-  template <typename PixelColor>
-  int SimpleMask<PixelColor>::getHeight() const {
-    return height;
-  }
+        void setPixel(int i, PixelColor k, bool safe = true);
+    };
 
-  template <typename PixelColor>
-  int SimpleMask<PixelColor>::getArea() const {
-    return height;
-  }
+    template<typename PixelColor>
+    SimpleMask<PixelColor>::SimpleMask(Pixmap <PixelColor> *p) {
+        map = p;
 
+        width = p->getWidth();
+        height = p->getHeight();
+        area = p->getArea();
 
-  template <typename PixelColor>
-  void SimpleMask<PixelColor>::setPixel(int x, int y, PixelColor k, bool safe) {
-    if (!safe || (safe && pixelAllowed(x, y))) {
-      map->setPixel(x, y, k);
+        maskPointer = new bool[width * height]();
     }
-  }
 
-  template <typename PixelColor>
-  void SimpleMask<PixelColor>::setPixel(int i, PixelColor k, bool safe) {
-    if (!safe || (safe && pixelAllowed(i))) {
-      map->setPixel(i, k);
+    template<typename PixelColor>
+    SimpleMask<PixelColor>::~SimpleMask() {
+        delete[] maskPointer;
     }
-  }
 
-  template <typename PixelColor>
-  PixelColor SimpleMask<PixelColor>::getPixel(int x, int y, bool safe) {
-    return map->getPixel(x, y, safe);
-  }
+    template<typename PixelColor>
+    int SimpleMask<PixelColor>::pairToIndex(int x, int y) const {
+        return x * width + y;
+    }
 
-  template <typename PixelColor>
-  PixelColor SimpleMask<PixelColor>::getPixel(int i, bool safe) {
-    return map->getPixel(i, safe);
-  }
+    template<typename PixelColor>
+    bool SimpleMask<PixelColor>::pixelAllowed(int i) const {
+        return (i >= 0 && i < area && maskPointer[i]);
+    }
+
+    template<typename PixelColor>
+    bool SimpleMask<PixelColor>::pixelAllowed(int x, int y) const {
+        return (x >= 0 && x < width && y >= 0 && y < height && maskPointer[pairToIndex(x, y)]);
+    }
+
+    template<typename PixelColor>
+    void SimpleMask<PixelColor>::allowPixel(int i) {
+        maskPointer[i] = true;
+    }
+
+    template<typename PixelColor>
+    void SimpleMask<PixelColor>::allowPixel(int x, int y) {
+        maskPointer[pairToIndex(x, y)] = true;
+    }
+
+    template<typename PixelColor>
+    void SimpleMask<PixelColor>::disallowPixel(int i) {
+        maskPointer[i] = false;
+    }
+
+    template<typename PixelColor>
+    void SimpleMask<PixelColor>::disallowPixel(int x, int y) {
+        maskPointer[pairToIndex(x, y)] = false;
+    }
+
+    template<typename PixelColor>
+    int SimpleMask<PixelColor>::getWidth() const {
+        return width;
+    }
+
+    template<typename PixelColor>
+    int SimpleMask<PixelColor>::getHeight() const {
+        return height;
+    }
+
+    template<typename PixelColor>
+    int SimpleMask<PixelColor>::getArea() const {
+        return height;
+    }
+
+
+    template<typename PixelColor>
+    void SimpleMask<PixelColor>::setPixel(int x, int y, PixelColor k, bool safe) {
+        if (!safe || (safe && pixelAllowed(x, y))) {
+            map->setPixel(x, y, k);
+        }
+    }
+
+    template<typename PixelColor>
+    void SimpleMask<PixelColor>::setPixel(int i, PixelColor k, bool safe) {
+        if (!safe || (safe && pixelAllowed(i))) {
+            map->setPixel(i, k);
+        }
+    }
+
+    template<typename PixelColor>
+    PixelColor SimpleMask<PixelColor>::getPixel(int x, int y, bool safe) {
+        return map->getPixel(x, y, safe);
+    }
+
+    template<typename PixelColor>
+    PixelColor SimpleMask<PixelColor>::getPixel(int i, bool safe) {
+        return map->getPixel(i, safe);
+    }*/
 }
 
 #endif

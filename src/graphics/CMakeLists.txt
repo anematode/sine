@@ -1,11 +1,12 @@
 set(SOURCE
         ${SOURCE}
         ${CMAKE_CURRENT_SOURCE_DIR}/color.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/canvascontext.cc
         PARENT_SCOPE
         )
 set(HEADERS
         ${HEADERS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/canvas.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/canvascontext.h
         ${CMAKE_CURRENT_SOURCE_DIR}/color.h
         ${CMAKE_CURRENT_SOURCE_DIR}/colorutils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/imageconverter.h
