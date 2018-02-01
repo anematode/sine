@@ -3,7 +3,7 @@
 
 #include "../pixmap.h"
 
-namespace Vis {
+namespace Sine {
   class Filter {
 
   };

@@ -4,7 +4,7 @@
 #include <cmath>
 #include <ostream>
 
-namespace Vis {
+namespace Sine {
 
     template<typename T = double>
     struct Vec3 {
@@ -231,6 +231,6 @@ namespace Vis {
     typedef Vec3<float> Vec3f;
     typedef Vec3<double> Vec3d;
 
-} // namespace Vis
+} // namespace Sine
 
 #endif

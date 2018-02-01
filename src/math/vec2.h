@@ -5,7 +5,7 @@
 #include <ostream>
 #include <complex>
 
-namespace Vis {
+namespace Sine {
 
     template<typename T = double>
     struct Vec2 {
@@ -225,6 +225,6 @@ namespace Vis {
     typedef Vec2<float> Vec2f;
     typedef Vec2<double> Vec2d;
 
-} // namespace Vis
+} // namespace Sine
 
 #endif

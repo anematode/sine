@@ -16,7 +16,7 @@
 
 #include <cmath>
 
-namespace Vis {
+namespace Sine {
 
     /**
   Pixmap is the base class for Graymap, Bitmap, RGBMap and RGBMap
@@ -39,7 +39,9 @@ namespace Vis {
 
         Pixmap(const Pixmap<PixelColor> &p);
 
-        Pixmap(Pixmap &&p) noexcept;
+        Pixmap(Pixmap<PixelColor> &&p);
+
+        Pixmap<PixelColor> &operator=(Pixmap<PixelColor> &&p);
 
         void copyFrom(const Pixmap &p);
 
@@ -74,6 +76,8 @@ namespace Vis {
         PixelColor getPixel(int index, bool safe = true) const;
 
         PixelColor getPixel(int x, int y, bool safe = true) const;
+
+        //PixelColor getPixelAny(int x, int y) const;
 
         PixelColor &getPixelRef(int index, bool safe = true);
 
@@ -134,13 +138,28 @@ namespace Vis {
     }
 
     template<typename PixelColor>
-    Pixmap<PixelColor>::Pixmap(Pixmap &&p) noexcept {
-        if (p.width == width && p.height == height) {
-            pixels = p.pixels;
+    Pixmap<PixelColor>::Pixmap(Pixmap<PixelColor> &&p) {
+        pixels = p.pixels;
+        p.pixels = nullptr;
+
+        width = p.getWidth();
+        height = p.getHeight();
+        area = p.getArea();
+    }
+
+    template<typename PixelColor>
+    Pixmap<PixelColor> &Pixmap<PixelColor>::operator=(Pixmap<PixelColor> &&p) {
+        if (this != &p) {
+            delete[] pixels;
+
+            pixels = p.getPixels();
+            width = p.getWidth();
+            height = p.getHeight();
+            area = p.getArea();
+
             p.pixels = nullptr;
-        } else {
-            throw std::logic_error("Pixmaps must be of the same dimensions for a move constructor.");
         }
+        return *this;
     }
 
     template<typename PixelColor>
@@ -237,7 +256,7 @@ namespace Vis {
         int newWidth = width * b;
         int newHeight = height * b;
 
-        Pixmap ret(newWidth, newHeight);
+        Pixmap<PixelColor> ret(newWidth, newHeight);
 
         if (newWidth == width && newHeight == height) {
             ret.copyFrom(*this);
@@ -657,7 +676,7 @@ namespace Vis {
         throw std::logic_error("PPM output is not implemented for RGBAMaps.");
     }
 
-} // namespace Vis
+} // namespace Sine
 
 
 #endif

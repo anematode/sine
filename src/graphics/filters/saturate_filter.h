@@ -4,7 +4,7 @@
 #include "filter.h"
 #include "../colorutils.h"
 
-namespace Vis {
+namespace Sine {
     namespace Filters {
         class Saturate : public Filter {
         private:

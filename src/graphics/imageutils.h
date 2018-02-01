@@ -4,12 +4,12 @@
 #include <string>
 #include <fstream>
 
-namespace Vis {
+namespace Sine {
 
     enum class ImageType {
         UNKNOWN,
         JPEG,
-        JPG = JPEG,
+        JPG = static_cast<int>(JPEG),
         GIF,
         BMP,
         PNG,
@@ -65,6 +65,6 @@ namespace Vis {
     }
 
 
-} // namespace Vis
+} // namespace Sine
 
 #endif

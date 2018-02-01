@@ -4,7 +4,7 @@
 #include <cmath>
 #include <iostream>
 
-namespace Vis {
+namespace Sine {
 
     typedef unsigned char color_base;
 

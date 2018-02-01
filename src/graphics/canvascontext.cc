@@ -4,7 +4,7 @@
 
 #include "canvascontext.h"
 
-namespace Vis {
+namespace Sine {
     CanvasContext::CanvasContext(Pixmap<RGB>* p) {
         canvas = p;
 

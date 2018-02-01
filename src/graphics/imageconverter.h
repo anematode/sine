@@ -4,262 +4,263 @@
 #include <memory>
 #include "pixmap.h"
 
-namespace Vis {
-
+namespace Sine {
     enum class ImageConversionParam {
         AVERAGE,
-        AVG = AVERAGE,
+        AVG = static_cast<int>(AVERAGE),
         LUMINOSITY,
-        LUM = LUMINOSITY
+        LUM = static_cast<int>(LUMINOSITY)
     };
 
     template<typename TypeA, ImageConversionParam opt = ImageConversionParam::LUM>
     struct ImageConverter {
-        static std::unique_ptr<TypeA> convert(RGBMap &a);
+        static TypeA convert(const RGBMap &a);
 
-        static std::unique_ptr<TypeA> convert(RGBAMap &a);
+        static TypeA convert(const RGBAMap &a);
 
-        static std::unique_ptr<TypeA> convert(Bitmap &a);
+        static TypeA convert(const Bitmap &a);
 
-        static std::unique_ptr<TypeA> convert(Graymap &a);
+        static TypeA convert(const Graymap &a);
     };
 
     template<>
-    std::unique_ptr<RGBMap> ImageConverter<RGBMap>::convert(RGBAMap &a) {
+    inline RGBMap ImageConverter<RGBMap>::convert(const RGBAMap &a) {
+
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<RGBMap> image_ret{new RGBMap(width, height)};
-        for (int i = 0; i < a.getWidth(); i++) {
-            for (int j = 0; j < a.getHeight(); j++) {
-                image_ret->setPixel(i, j, a.getPixel(i, j).rgb());
-            }
-        }
+        std::cout << width << ' ' << height << '\n';
 
-        return image_ret;
-    }
-
-    template<>
-    std::unique_ptr<RGBAMap> ImageConverter<RGBAMap>::convert(RGBMap &a) {
-        int width = a.getWidth();
-        int height = a.getHeight();
-
-        std::unique_ptr<RGBAMap> image_ret{new RGBAMap(width, height)};
+        RGBMap image_ret(width, height);
         for (int i = 0; i < a.getArea(); i++) {
-            image_ret->setPixel(i, a.getPixel(i).rgba());
+            image_ret.setPixel(i, a.getPixel(i).rgb());
+        }
+
+        std::cout << "Udd" << std::endl;
+
+        return image_ret;
+    }
+
+    template<>
+    inline RGBAMap ImageConverter<RGBAMap>::convert(const RGBMap &a) {
+        int width = a.getWidth();
+        int height = a.getHeight();
+
+        RGBAMap image_ret{width, height};
+        for (int i = 0; i < a.getArea(); i++) {
+            image_ret.setPixel(i, a.getPixel(i).rgba());
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<Graymap> ImageConverter<Graymap, ImageConversionParam::AVERAGE>::convert(RGBMap &a) {
+    inline Graymap ImageConverter<Graymap, ImageConversionParam::AVERAGE>::convert(const RGBMap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<Graymap> image_ret{new Graymap(width, height)};
+        Graymap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             RGB temp = a.getPixel(i);
             int avg = temp.r / 3.0 + temp.g / 3.0 + temp.b / 3.0;
-            image_ret->setPixel(i, avg);
+            image_ret.setPixel(i, avg);
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<Graymap> ImageConverter<Graymap, ImageConversionParam::LUMINOSITY>::convert(RGBMap &a) {
+    inline Graymap ImageConverter<Graymap, ImageConversionParam::LUMINOSITY>::convert(const RGBMap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<Graymap> image_ret{new Graymap(width, height)};
+        Graymap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             RGB temp = a.getPixel(i);
             int avg = 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b;
-            image_ret->setPixel(i, avg);
+            image_ret.setPixel(i, avg);
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<Graymap> ImageConverter<Graymap, ImageConversionParam::AVERAGE>::convert(RGBAMap &a) {
+    inline Graymap ImageConverter<Graymap, ImageConversionParam::AVERAGE>::convert(const RGBAMap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<Graymap> image_ret{new Graymap(width, height)};
+        Graymap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             RGBA temp = a.getPixel(i);
             int avg = temp.r / 3.0 + temp.g / 3.0 + temp.b / 3.0;
-            image_ret->setPixel(i, avg);
+            image_ret.setPixel(i, avg);
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<Graymap> ImageConverter<Graymap, ImageConversionParam::LUMINOSITY>::convert(RGBAMap &a) {
+    inline Graymap ImageConverter<Graymap, ImageConversionParam::LUMINOSITY>::convert(const RGBAMap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<Graymap> image_ret{new Graymap(width, height)};
+        Graymap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             RGBA temp = a.getPixel(i);
             int avg = 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b;
-            image_ret->setPixel(i, avg);
+            image_ret.setPixel(i, avg);
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<RGBMap> ImageConverter<RGBMap>::convert(Graymap &a) {
+    inline RGBMap ImageConverter<RGBMap>::convert(const Graymap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<RGBMap> image_ret{new RGBMap(width, height)};
+        RGBMap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             int temp = a.getPixel(i);
-            image_ret->setPixel(i, RGB(temp, temp, temp));
+            image_ret.setPixel(i, RGB(temp, temp, temp));
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<RGBAMap> ImageConverter<RGBAMap>::convert(Graymap &a) {
+    inline RGBAMap ImageConverter<RGBAMap>::convert(const Graymap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<RGBAMap> image_ret{new RGBAMap(width, height)};
+        RGBAMap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             int temp = a.getPixel(i);
-            image_ret->setPixel(i, RGBA(temp, temp, temp, 255));
+            image_ret.setPixel(i, RGBA(temp, temp, temp, 255));
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<RGBAMap> ImageConverter<RGBAMap>::convert(Bitmap &a) {
+    inline RGBAMap ImageConverter<RGBAMap>::convert(const Bitmap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<RGBAMap> image_ret{new RGBAMap(width, height)};
+        RGBAMap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             int temp = a.getPixel(i) ? 255 : 0;
-            image_ret->setPixel(i, RGBA(temp, temp, temp, 255));
+            image_ret.setPixel(i, RGBA(temp, temp, temp, 255));
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<RGBMap> ImageConverter<RGBMap>::convert(Bitmap &a) {
+    inline RGBMap ImageConverter<RGBMap>::convert(const Bitmap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<RGBMap> image_ret{new RGBMap(width, height)};
+        RGBMap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             int temp = a.getPixel(i) ? 255 : 0;
-            image_ret->setPixel(i, RGB(temp, temp, temp));
+            image_ret.setPixel(i, RGB(temp, temp, temp));
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<Graymap> ImageConverter<Graymap>::convert(Bitmap &a) {
+    inline Graymap ImageConverter<Graymap>::convert(const Bitmap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<Graymap> image_ret{new Graymap(width, height)};
+        Graymap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             int temp = a.getPixel(i) ? 255 : 0;
-            image_ret->setPixel(i, temp);
+            image_ret.setPixel(i, temp);
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<Bitmap> ImageConverter<Bitmap, ImageConversionParam::AVERAGE>::convert(RGBMap &a) {
+    inline Bitmap ImageConverter<Bitmap, ImageConversionParam::AVERAGE>::convert(const RGBMap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<Bitmap> image_ret{new Bitmap(width, height)};
+        Bitmap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             RGB temp = a.getPixel(i);
 
             int avg = temp.r / 3.0 + temp.g / 3.0 + temp.b / 3.0;
-            image_ret->setPixel(i, avg > 128);
+            image_ret.setPixel(i, avg > 128);
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<Bitmap> ImageConverter<Bitmap, ImageConversionParam::LUMINOSITY>::convert(RGBMap &a) {
+    inline Bitmap ImageConverter<Bitmap, ImageConversionParam::LUMINOSITY>::convert(const RGBMap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<Bitmap> image_ret{new Bitmap(width, height)};
+        Bitmap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             RGB temp = a.getPixel(i);
 
             int avg = 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b;
-            image_ret->setPixel(i, avg > 128);
+            image_ret.setPixel(i, avg > 128);
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<Bitmap> ImageConverter<Bitmap, ImageConversionParam::AVERAGE>::convert(RGBAMap &a) {
+    inline Bitmap ImageConverter<Bitmap, ImageConversionParam::AVERAGE>::convert(const RGBAMap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<Bitmap> image_ret{new Bitmap(width, height)};
+        Bitmap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             RGBA temp = a.getPixel(i);
 
             int avg = temp.r / 3.0 + temp.g / 3.0 + temp.b / 3.0;
-            image_ret->setPixel(i, avg > 128);
+            image_ret.setPixel(i, avg > 128);
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<Bitmap> ImageConverter<Bitmap, ImageConversionParam::LUMINOSITY>::convert(RGBAMap &a) {
+    inline Bitmap ImageConverter<Bitmap, ImageConversionParam::LUMINOSITY>::convert(const RGBAMap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<Bitmap> image_ret{new Bitmap(width, height)};
+        Bitmap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             RGBA temp = a.getPixel(i);
 
             int avg = 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b;
-            image_ret->setPixel(i, avg > 128);
+            image_ret.setPixel(i, avg > 128);
         }
 
         return image_ret;
     }
 
     template<>
-    std::unique_ptr<Bitmap> ImageConverter<Bitmap>::convert(Graymap &a) {
+    inline Bitmap ImageConverter<Bitmap>::convert(const Graymap &a) {
         int width = a.getWidth();
         int height = a.getHeight();
 
-        std::unique_ptr<Bitmap> image_ret{new Bitmap(width, height)};
+        Bitmap image_ret{width, height};
         for (size_t i = 0; i < a.getArea(); i++) {
             int temp = a.getPixel(i);
-            image_ret->setPixel(i, temp > 128);
+            image_ret.setPixel(i, temp > 128);
         }
 
         return image_ret;
     }
-
 }
 
 #endif

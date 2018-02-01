@@ -3,7 +3,7 @@
 
 #include "filter.h"
 
-namespace Vis {
+namespace Sine {
     namespace Filters {
         namespace {
             template<typename T>

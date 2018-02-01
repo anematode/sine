@@ -9,7 +9,7 @@
 #include "pixmap.h"
 #include <vector>
 
-namespace Vis {
+namespace Sine {
 
     enum class MaskChaining {
         Union,
@@ -34,12 +34,13 @@ namespace Vis {
 
         Pixmap<RGB>* getCanvas();
 
-        inline bool hasMasks();
+        bool hasMasks();
 
-        inline int pairToIndex(int x, int y);
+        int pairToIndex(int x, int y);
 
-        inline bool pixelAllowed(int i);
-        inline bool pixelAllowed(int x, int y);
+        bool pixelAllowed(int i);
+
+        bool pixelAllowed(int x, int y);
 
 
 

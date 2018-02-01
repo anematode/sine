@@ -1,6 +1,6 @@
 #include "color.h"
 
-namespace Vis {
+namespace Sine {
     const float HSL_FACTOR_M = 256 / 6.0;
 
     HSL RGB::hsl() const {

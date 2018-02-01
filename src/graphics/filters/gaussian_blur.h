@@ -5,7 +5,7 @@
 #include <iostream>
 #include <limits>
 
-namespace Vis {
+namespace Sine {
     namespace Filters {
 
         namespace GenerateGaussian {
@@ -43,9 +43,9 @@ namespace Vis {
             const int MULT_FACTOR = 2 << MULT_FACTOR_LOG2;
 
             constexpr int getGFactor(size_t index, int stddevs100) {
-                return MULT_FACTOR *
-                       c_exp(-((int) index * (int) index) / (stddevs100 / 100.0)) /
-                       c_sqrt(3.14159265358979 * stddevs100 / 100.0);
+                return static_cast<int>(MULT_FACTOR *
+                                        c_exp(-((int) index * (int) index) / (stddevs100 / 100.0)) /
+                                        c_sqrt(3.14159265358979 * stddevs100 / 100.0));
             }
 
             template<unsigned... args>
@@ -229,7 +229,7 @@ namespace Vis {
             int height = map.getHeight();
             int size_nu = size;
 
-            Vis::RGB a[std::max(width, height)];
+            Sine::RGB a[std::max(width, height)];
 
             for (int y_s = 0; y_s < height; y_s++) {
                 for (int x_s = 0; x_s < width; x_s++) {
@@ -253,7 +253,7 @@ namespace Vis {
                     gSum /= denominator;
                     bSum /= denominator;
 
-                    map.setPixel(x_s, y_s, Vis::RGB(rSum, gSum, bSum));
+                    map.setPixel(x_s, y_s, Sine::RGB(rSum, gSum, bSum));
                 }
             }
 
@@ -279,7 +279,7 @@ namespace Vis {
                     gSum /= denominator;
                     bSum /= denominator;
 
-                    map.setPixel(x_s, y_s, Vis::RGB(rSum, gSum, bSum));
+                    map.setPixel(x_s, y_s, Sine::RGB(rSum, gSum, bSum));
                 }
             }
         }
@@ -290,7 +290,7 @@ namespace Vis {
             int height = map.getHeight();
             int size_nu = size;
 
-            Vis::RGBA a[std::max(width, height)];
+            Sine::RGBA a[std::max(width, height)];
 
             for (int y_s = 0; y_s < height; y_s++) {
                 for (int x_s = 0; x_s < width; x_s++) {
@@ -316,7 +316,7 @@ namespace Vis {
                     bSum /= denominator;
                     aSum /= denominator;
 
-                    map.setPixel(x_s, y_s, Vis::RGBA(rSum, gSum, bSum, aSum));
+                    map.setPixel(x_s, y_s, Sine::RGBA(rSum, gSum, bSum, aSum));
                 }
             }
 
@@ -344,13 +344,13 @@ namespace Vis {
                     bSum /= denominator;
                     aSum /= denominator;
 
-                    map.setPixel(x_s, y_s, Vis::RGBA(rSum, gSum, bSum, aSum));
+                    map.setPixel(x_s, y_s, Sine::RGBA(rSum, gSum, bSum, aSum));
                 }
 
 
             }
         }
     } // namespace Filters
-} // namespace Vis
+} // namespace Sine
 
 #endif

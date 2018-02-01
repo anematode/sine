@@ -6,7 +6,7 @@
 #include "pixmap.h"
 #include "color.h"
 
-namespace Vis {
+namespace Sine {
     template<typename PixelColor>
     class Mask {
     public:
@@ -34,7 +34,7 @@ namespace Vis {
     typedef Mask<RGB> RGBMask;
     typedef Mask<RGBA> RGBAMask;
 
-    /*template<typename PixelColor>
+    template<typename PixelColor>
     class SimpleMask : public Mask<PixelColor> {
     private:
         Pixmap <PixelColor> *map;
@@ -164,7 +164,7 @@ namespace Vis {
     template<typename PixelColor>
     PixelColor SimpleMask<PixelColor>::getPixel(int i, bool safe) {
         return map->getPixel(i, safe);
-    }*/
+    }
 }
 
 #endif

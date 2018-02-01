@@ -5,7 +5,7 @@
 #include "../mask.h"
 #include "../colorutils.h"
 
-namespace Vis {
+namespace Sine {
     namespace Filters {
         class Lighten : public Filter {
         private:
