@@ -15,6 +15,7 @@
 #include "stb_image_write.h"
 
 #include <cmath>
+#include <functional>
 
 namespace Sine {
 
@@ -24,6 +25,36 @@ namespace Sine {
     **/
 
 
+    namespace PixmapApply {
+        const unsigned char NORETURN = 0,
+                RETURN = 1,
+                NOPASSINDEX = 0,
+                PASSINDEX = (1 << 1),
+                NOPASSPAIR = 0,
+                PASSPAIR = (1 << 2);
+    };
+
+    template<typename F, typename Ret, typename... Rest>
+    Ret helper_get_return_type(Ret (F::*)(Rest...));
+
+    template<typename F, typename Ret, typename... Rest>
+    Ret helper_get_return_type(Ret (F::*)(Rest...) const);
+
+    template<typename F, typename Ret, typename... Rest>
+    constexpr size_t helper_get_arg_count(Ret (F::*)(Rest...)) {
+        return sizeof...(Rest);
+    };
+
+    template<typename F, typename Ret, typename... Rest>
+    constexpr size_t helper_get_arg_count(Ret (F::*)(Rest...) const) {
+        return sizeof...(Rest);
+    };
+
+    template<typename F>
+    struct get_functor_traits {
+        typedef decltype(helper_get_return_type(&F::operator())) return_type;
+        static const size_t arg_count = helper_get_arg_count(&F::operator());
+    };
 
     template<typename PixelColor>
     class Pixmap {
@@ -85,8 +116,6 @@ namespace Sine {
 
         PixelColor getPixel(int x, int y) const;
 
-        //PixelColor getPixelAny(int x, int y) const;
-
         PixelColor &getPixelRef(int index);
 
         PixelColor &getPixelRef(int x, int y);
@@ -94,6 +123,18 @@ namespace Sine {
         void setPixel(int index, PixelColor c);
 
         void setPixel(int x, int y, PixelColor c);
+
+        PixelColor getPixelUnsafe(int index) const;
+
+        PixelColor getPixelUnsafe(int x, int y) const;
+
+        PixelColor &getPixelRefUnsafe(int index);
+
+        PixelColor &getPixelRefUnsafe(int x, int y);
+
+        void setPixelUnsafe(int index, PixelColor c);
+
+        void setPixelUnsafe(int x, int y, PixelColor c);
 
         bool exportToFile(std::string file,
                           ImageType type = ImageType::UNKNOWN);
@@ -113,7 +154,85 @@ namespace Sine {
         void exportToPPM(std::string file);
 
         void exportToPGM(std::string file);
+
+        template<typename T, unsigned char app = PixmapApply::NORETURN>
+        inline void _apply(T func) {
+            using namespace PixmapApply;
+
+            if constexpr (app == (NORETURN | NOPASSINDEX | NOPASSPAIR)) {
+                for (auto &i : *this) {
+                    func(i);
+                }
+            } else if constexpr ((app == (NORETURN | NOPASSINDEX | PASSPAIR)) ||
+                                 (app == (NORETURN | PASSINDEX | PASSPAIR))) {
+                int index = 0;
+                for (int j = 0; j < height; j++) {
+                    for (int i = 0; i < width; i++) {
+                        func(getPixelRefUnsafe(index), i, j);
+                        index++;
+                    }
+                } //
+            } else if constexpr (app == (NORETURN | PASSINDEX | NOPASSPAIR)) {
+                for (int i = 0; i < area; i++) {
+                    func(getPixelRefUnsafe(i), i);
+                }
+            } else if constexpr (app == (RETURN | NOPASSINDEX | NOPASSPAIR)) {
+                for (auto &i : *this) {
+                    i = func(i);
+                }
+            } else if constexpr ((app == (RETURN | NOPASSINDEX | PASSPAIR)) ||
+                                 (app == (RETURN | PASSINDEX | PASSPAIR))) {
+                int index = 0;
+
+                for (int j = 0; j < height; j++) {
+                    for (int i = 0; i < width; i++) {
+                        setPixelUnsafe(index, func(getPixelUnsafe(index), i, j));
+                        index++;
+                    }
+                }
+            } else if constexpr (app == (RETURN | PASSINDEX | NOPASSPAIR)) {
+                for (int i = 0; i < area; i++) {
+                    setPixelUnsafe(i, func(getPixelUnsafe(i), i));
+                }
+            }
+        }
+
+        template<typename T>
+        inline void apply(T func) {
+            _apply_l<T>(func);
+        }
+
+        template<typename T, typename = typename std::enable_if<std::is_same<typename get_functor_traits<T>::return_type, PixelColor>::value>::type>
+        inline void _apply_l(T func, int = 0) {
+
+            _apply_a<T, PixmapApply::RETURN>(func);
+        };
+
+        template<typename T, typename = typename std::enable_if<!std::is_same<typename get_functor_traits<T>::return_type, PixelColor>::value>::type>
+        inline void _apply_l(T func, double = 0) {
+
+            _apply_a<T, PixmapApply::NORETURN>(func);
+        };
+
+        template<typename T, unsigned char opts, typename = typename std::enable_if<
+                get_functor_traits<T>::arg_count == 1>::type>
+        inline void _apply_a(T func, int = 0) {
+            _apply<T, opts>(func);
+        };
+
+        template<typename T, unsigned char opts, typename = typename std::enable_if<
+                get_functor_traits<T>::arg_count == 2>::type>
+        inline void _apply_a(T func, double = 0) {
+            _apply<T, opts | PixmapApply::PASSINDEX>(func);
+        };
+
+        template<typename T, unsigned char opts, typename = typename std::enable_if<
+                get_functor_traits<T>::arg_count == 3>::type>
+        inline void _apply_a(T func, long = 0) {
+            _apply<T, opts | PixmapApply::PASSPAIR>(func);
+        };
     };
+
 
     typedef Pixmap<bool> Bitmap;
     typedef Pixmap<RGB> RGBMap;

@@ -50,7 +50,9 @@ namespace Sine {
 
         void copyFrom(const RGBMap &a, uint8_t opacity = 255);
 
-        void copyFrom(const RGBAMap &a);
+        using Pixmap<RGBA>::copyFrom;
+
+        // void copyFrom(const RGBAMap &a);
 
 
         void fill(RGBA color);

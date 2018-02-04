@@ -8,7 +8,7 @@ namespace Sine {
     ImageType extractImageType(std::string filename) noexcept {
         std::string extension;
 
-        for (size_t index = filename.length() - 1; index >= 0; index--) {
+        for (size_t index = filename.length() - 1; index > 0; index--) {
             if (filename[index] == '.') {
                 break;
             }

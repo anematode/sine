@@ -606,7 +606,7 @@ namespace Sine {
         }
     }
 
-    void Canvas::copyFrom(const RGBAMap &p) {
+    /*void Canvas::copyFrom(const RGBAMap &p) {
         if (p.getWidth() != width || p.getHeight() != height) {
             throw std::logic_error("Pixmaps must be of the same dimensions for copying.");
         } else {
@@ -616,7 +616,7 @@ namespace Sine {
                 }
             }
         }
-    }
+    }*/
 
     /*void Canvas::pasteImage(RGBAMap& image, int x, int y) {
         int minHeight = std::min(height, image.getHeight() + y);

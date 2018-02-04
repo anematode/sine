@@ -4,11 +4,28 @@
 #include "graphics/genericgraphic.h"
 #include "timer.h"
 
+
+struct A {
+};
+struct B {
+};
+struct C {
+};
+
 int main() {
     {
-        Sine::Canvas image_temp{"/Users/timoothy/Desktop/eclipse2018/2018_01_31/IMG_0001.JPG"};
+        Sine::Canvas image_temp{"/Users/timoothy/Desktop/udd.png"};
         Sine::DefaultTimer timer{"load image 0001"};
 
-        image_temp.fill(Sine::RGBA(5, 5, 100, 5));
+        auto c = [](Sine::RGBA &c) {
+            uint8_t lum = Sine::ColorUtils::getLuminance(c);
+            c = Sine::RGBA(lum, lum, lum, c.a);
+        };
+
+        image_temp.apply(c);
+
+        //std::cout << get_functor_traits<decltype(c)>::arg_count << std::endl;
+
+        //image_temp.exportToFile("/Users/timoothy/Desktop/udder.png");
     }
 }

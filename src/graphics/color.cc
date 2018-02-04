@@ -12,7 +12,7 @@ namespace Sine {
         int b_c = b;
 
         color_base lum = (minColor + maxColor) / 2;
-        color_base sat, hue;
+        color_base sat, h;
 
         if (minColor == maxColor) {
             sat = 0;
@@ -25,14 +25,14 @@ namespace Sine {
         }
 
         if (r_c == maxColor) {
-            hue = HSL_FACTOR_M * std::fmod((g_c - b_c) / float(maxColor - minColor), 6);
+            h = HSL_FACTOR_M * std::fmod((g_c - b_c) / float(maxColor - minColor), 6);
         } else if (g_c == maxColor) {
-            hue = HSL_FACTOR_M * ((b_c - r_c) / float(maxColor - minColor) + 2);
+            h = HSL_FACTOR_M * ((b_c - r_c) / float(maxColor - minColor) + 2);
         } else {
-            hue = HSL_FACTOR_M * (4.0 + (r_c - g_c) / float(maxColor - minColor));
+            h = HSL_FACTOR_M * (4.0 + (r_c - g_c) / float(maxColor - minColor));
         }
 
-        return {hue, sat, lum};
+        return {h, sat, lum};
     }
 
     float hueToRGB(float p, float q, float t) {
@@ -57,6 +57,56 @@ namespace Sine {
 
         return {(color_base)(r_d * 255), (color_base)(g_d * 255), (color_base)(b_d * 255)};
     }
+
+    /*RGB HSL::rgb() const {
+        float r, g, b;
+        if (s == 0) {
+            r = g = b = l;
+        } else {
+            float h_l = h / 42.66666;
+            int i = std::round(h_l);
+            float f = h_l - i;
+            int p = l * (256 - (int)s) / 256;
+            int q = l * (256 - (int)s * f) / 256;
+            int t = l * (256 - (int)s * (1 - f)) / 256;
+
+            switch (i) {
+                case 0:
+                    r = l;
+                    g = t;
+                    b = p;
+                    break;
+                case 1:
+                    r = q;
+                    g = l;
+                    b = p;
+                    break;
+                case 2:
+                    r = p;
+                    g = l;
+                    b = t;
+                    break;
+                case 3:
+                    r = p;
+                    g = q;
+                    b = l;
+                    break;
+                case 4:
+                    r = t;
+                    g = p;
+                    b = l;
+                    break;
+                case 5:
+                default:
+                    r = l;
+                    g = p;
+                    b = q;
+                    break;
+            }
+        }
+
+        return {static_cast<color_base>(r), static_cast<color_base>(g), static_cast<color_base>(b)};
+    }*/
 
     RGBA HSL::rgba() const {
         RGB temp = rgb();
@@ -101,7 +151,7 @@ namespace Sine {
 
     HSLA RGBA::hsla() const {
         HSL temp = hsl();
-        return {temp.h, temp.s, temp.l, 255};
+        return {temp.h, temp.s, temp.l, a};
     }
 
 

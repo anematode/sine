@@ -204,6 +204,37 @@ namespace Sine {
         pixels[pairToIndex(x, y)] = c;
     }
 
+
+    template<typename PixelColor>
+    PixelColor Pixmap<PixelColor>::getPixelUnsafe(int x, int y) const {
+        return pixels[pairToIndex(x, y)];
+    }
+
+    template<typename PixelColor>
+    PixelColor Pixmap<PixelColor>::getPixelUnsafe(int index) const {
+        return pixels[index];
+    }
+
+    template<typename PixelColor>
+    PixelColor &Pixmap<PixelColor>::getPixelRefUnsafe(int index) {
+        return pixels[index];
+    }
+
+    template<typename PixelColor>
+    PixelColor &Pixmap<PixelColor>::getPixelRefUnsafe(int x, int y) {
+        return pixels[pairToIndex(x, y)];
+    }
+
+    template<typename PixelColor>
+    void Pixmap<PixelColor>::setPixelUnsafe(int index, PixelColor c) {
+        pixels[index] = c;
+    }
+
+    template<typename PixelColor>
+    void Pixmap<PixelColor>::setPixelUnsafe(int x, int y, PixelColor c) {
+        pixels[pairToIndex(x, y)] = c;
+    }
+
     template<typename PixelColor>
     bool Pixmap<PixelColor>::exportToFile(std::string file, ImageType type) {
         guessType:
