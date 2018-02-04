@@ -19,7 +19,7 @@ namespace Sine {
 
         area = p.area;
 
-        this->copyFrom(p);
+        copyFrom(p);
     }
 
     Canvas::Canvas(const Pixmap<RGBA> &p) : Pixmap<RGBA>(p.getWidth(), p.getHeight()) {
@@ -51,7 +51,7 @@ namespace Sine {
             sample_y = -std::min(y, 0);
             for (int j = std::max(y, 0); j < minHeight; j++) {
                 setPixel(i, j,
-                         image.getPixel(sample_x, sample_y, false) ? RGBA(255, 255, 255, 255) : RGBA(0, 0, 0, 255));
+                         image.getPixel(sample_x, sample_y) ? RGBA(255, 255, 255, 255) : RGBA(0, 0, 0, 255));
                 sample_y++;
             }
             sample_x++;
@@ -68,7 +68,7 @@ namespace Sine {
         for (int i = std::max(x, 0); i < minWidth; i++) {
             sample_y = -std::min(y, 0);
             for (int j = std::max(y, 0); j < minHeight; j++) {
-                uint8_t temp = image.getPixel(sample_x, sample_y, false);
+                uint8_t temp = image.getPixel(sample_x, sample_y);
 
                 setPixel(i, j, RGBA(temp, temp, temp, 255));
                 sample_y++;
@@ -87,7 +87,7 @@ namespace Sine {
         for (int i = std::max(x, 0); i < minWidth; i++) {
             sample_y = -std::min(y, 0);
             for (int j = std::max(y, 0); j < minHeight; j++) {
-                setPixel(i, j, image.getPixel(sample_x, sample_y, false).rgba());
+                setPixel(i, j, image.getPixel(sample_x, sample_y).rgba());
                 sample_y++;
             }
             sample_x++;
@@ -104,7 +104,7 @@ namespace Sine {
         for (int i = std::max(x, 0); i < minWidth; i++) {
             sample_y = -std::min(y, 0);
             for (int j = std::max(y, 0); j < minHeight; j++) {
-                setPixel(i, j, image.getPixel(sample_x, sample_y, false));
+                setPixel(i, j, image.getPixel(sample_x, sample_y));
                 sample_y++;
             }
             sample_x++;
@@ -124,8 +124,8 @@ namespace Sine {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
                         setPixel(i, j,
-                                 (image.getPixel(sample_x, sample_y, false) ? RGBA(255, 255, 255, 255) : RGBA(0, 0, 0,
-                                                                                                              255)));
+                                 (image.getPixel(sample_x, sample_y) ? RGBA(255, 255, 255, 255) : RGBA(0, 0, 0,
+                                                                                                       255)));
                         sample_y++;
                     }
                     sample_x++;
@@ -139,11 +139,11 @@ namespace Sine {
                     for (int j = std::max(y, 0); j < minHeight; j++) {
                         setPixel(i, j,
                                  ColorUtils::add(
-                                         (image.getPixel(sample_x, sample_y, false) ? RGBA(255, 255, 255, 255) : RGBA(0,
-                                                                                                                      0,
-                                                                                                                      0,
-                                                                                                                      255)),
-                                         getPixel(i, j, false)));
+                                         (image.getPixel(sample_x, sample_y) ? RGBA(255, 255, 255, 255) : RGBA(0,
+                                                                                                               0,
+                                                                                                               0,
+                                                                                                               255)),
+                                         getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -157,11 +157,11 @@ namespace Sine {
                     for (int j = std::max(y, 0); j < minHeight; j++) {
                         setPixel(i, j,
                                  ColorUtils::average(
-                                         (image.getPixel(sample_x, sample_y, false) ? RGBA(255, 255, 255, 255) : RGBA(0,
-                                                                                                                      0,
-                                                                                                                      0,
-                                                                                                                      255)),
-                                         getPixel(i, j, false)));
+                                         (image.getPixel(sample_x, sample_y) ? RGBA(255, 255, 255, 255) : RGBA(0,
+                                                                                                               0,
+                                                                                                               0,
+                                                                                                               255)),
+                                         getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -175,11 +175,11 @@ namespace Sine {
                     for (int j = std::max(y, 0); j < minHeight; j++) {
                         setPixel(i, j,
                                  ColorUtils::mult(
-                                         (image.getPixel(sample_x, sample_y, false) ? RGBA(255, 255, 255, 255) : RGBA(0,
-                                                                                                                      0,
-                                                                                                                      0,
-                                                                                                                      255)),
-                                         getPixel(i, j, false)));
+                                         (image.getPixel(sample_x, sample_y) ? RGBA(255, 255, 255, 255) : RGBA(0,
+                                                                                                               0,
+                                                                                                               0,
+                                                                                                               255)),
+                                         getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -193,11 +193,11 @@ namespace Sine {
                     for (int j = std::max(y, 0); j < minHeight; j++) {
                         setPixel(i, j,
                                  ColorUtils::sub(
-                                         (image.getPixel(sample_x, sample_y, false) ? RGBA(255, 255, 255, 255) : RGBA(0,
-                                                                                                                      0,
-                                                                                                                      0,
-                                                                                                                      255)),
-                                         getPixel(i, j, false)));
+                                         (image.getPixel(sample_x, sample_y) ? RGBA(255, 255, 255, 255) : RGBA(0,
+                                                                                                               0,
+                                                                                                               0,
+                                                                                                               255)),
+                                         getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -209,11 +209,11 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        uint8_t opacity = getPixel(i, j, false).a;
+                        uint8_t opacity = getPixel(i, j).a;
                         setPixel(i, j,
-                                 image.getPixel(sample_x, sample_y, false) ? RGBA(255, 255, 255, opacity) : RGBA(0, 0,
-                                                                                                                 0,
-                                                                                                                 opacity));
+                                 image.getPixel(sample_x, sample_y) ? RGBA(255, 255, 255, opacity) : RGBA(0, 0,
+                                                                                                          0,
+                                                                                                          opacity));
                         sample_y++;
                     }
                     sample_x++;
@@ -236,7 +236,7 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        uint8_t temp = image.getPixel(sample_x, sample_y, false);
+                        uint8_t temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j, RGBA(temp, temp, temp, 255));
                         sample_y++;
                     }
@@ -251,10 +251,10 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        uint8_t temp = image.getPixel(sample_x, sample_y, false);
+                        uint8_t temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j,
                                  ColorUtils::add(RGBA(temp, temp, temp, 255),
-                                                 getPixel(i, j, false)));
+                                                 getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -268,10 +268,10 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        uint8_t temp = image.getPixel(sample_x, sample_y, false);
+                        uint8_t temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j,
                                  ColorUtils::average(RGBA(temp, temp, temp, 255),
-                                                     getPixel(i, j, false)));
+                                                     getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -285,10 +285,10 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        uint8_t temp = image.getPixel(sample_x, sample_y, false);
+                        uint8_t temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j,
                                  ColorUtils::mult(RGBA(temp, temp, temp, 255),
-                                                  getPixel(i, j, false)));
+                                                  getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -302,11 +302,11 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        uint8_t temp = image.getPixel(sample_x, sample_y, false);
+                        uint8_t temp = image.getPixel(sample_x, sample_y);
 
                         setPixel(i, j,
                                  ColorUtils::sub(RGBA(temp, temp, temp, 255),
-                                                 getPixel(i, j, false)));
+                                                 getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -320,8 +320,8 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        uint8_t opacity = getPixel(i, j, false).a;
-                        uint8_t temp = image.getPixel(sample_x, sample_y, false);
+                        uint8_t opacity = getPixel(i, j).a;
+                        uint8_t temp = image.getPixel(sample_x, sample_y);
 
                         setPixel(i, j, RGBA(temp, temp, temp, opacity));
                         sample_y++;
@@ -348,7 +348,7 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGB temp = image.getPixel(sample_x, sample_y, false);
+                        RGB temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j, temp.rgba());
                         sample_y++;
                     }
@@ -363,10 +363,10 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGB temp = image.getPixel(sample_x, sample_y, false);
+                        RGB temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j,
                                  ColorUtils::add(temp.rgba(),
-                                                 getPixel(i, j, false)));
+                                                 getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -380,10 +380,10 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGB temp = image.getPixel(sample_x, sample_y, false);
+                        RGB temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j,
                                  ColorUtils::average(temp.rgba(),
-                                                     getPixel(i, j, false)));
+                                                     getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -397,10 +397,10 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGB temp = image.getPixel(sample_x, sample_y, false);
+                        RGB temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j,
                                  ColorUtils::mult(temp.rgba(),
-                                                  getPixel(i, j, false)));
+                                                  getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -414,11 +414,11 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGB temp = image.getPixel(sample_x, sample_y, false);
+                        RGB temp = image.getPixel(sample_x, sample_y);
 
                         setPixel(i, j,
                                  ColorUtils::sub(temp.rgba(),
-                                                 getPixel(i, j, false)));
+                                                 getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -432,11 +432,11 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGB temp = image.getPixel(sample_x, sample_y, false);
+                        RGB temp = image.getPixel(sample_x, sample_y);
 
                         setPixel(i, j,
                                  ColorUtils::merge(temp,
-                                                   getPixel(i, j, false)));
+                                                   getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -461,7 +461,7 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGBA temp = image.getPixel(sample_x, sample_y, false);
+                        RGBA temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j, temp);
                         sample_y++;
                     }
@@ -476,10 +476,10 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGBA temp = image.getPixel(sample_x, sample_y, false);
+                        RGBA temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j,
                                  ColorUtils::add(temp,
-                                                 getPixel(i, j, false)));
+                                                 getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -493,10 +493,10 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGBA temp = image.getPixel(sample_x, sample_y, false);
+                        RGBA temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j,
                                  ColorUtils::average(temp,
-                                                     getPixel(i, j, false)));
+                                                     getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -510,10 +510,10 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGBA temp = image.getPixel(sample_x, sample_y, false);
+                        RGBA temp = image.getPixel(sample_x, sample_y);
                         setPixel(i, j,
                                  ColorUtils::mult(temp,
-                                                  getPixel(i, j, false)));
+                                                  getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -527,11 +527,11 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGBA temp = image.getPixel(sample_x, sample_y, false);
+                        RGBA temp = image.getPixel(sample_x, sample_y);
 
                         setPixel(i, j,
                                  ColorUtils::sub(temp,
-                                                 getPixel(i, j, false)));
+                                                 getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -545,11 +545,11 @@ namespace Sine {
                 for (int i = std::max(x, 0); i < minWidth; i++) {
                     sample_y = -std::min(y, 0);
                     for (int j = std::max(y, 0); j < minHeight; j++) {
-                        RGBA temp = image.getPixel(sample_x, sample_y, false);
+                        RGBA temp = image.getPixel(sample_x, sample_y);
 
                         setPixel(i, j,
                                  ColorUtils::merge(temp,
-                                                   getPixel(i, j, false)));
+                                                   getPixel(i, j)));
                         sample_y++;
                     }
                     sample_x++;
@@ -574,7 +574,7 @@ namespace Sine {
         } else {
             for (int i = 0; i < p.getWidth(); i++) {
                 for (int j = 0; j < p.getHeight(); j++) {
-                    setPixel(i, j, p.getPixel(i, j, false) ? RGBA(255, 255, 255, opacity) : RGBA(0, 0, 0, opacity));
+                    setPixel(i, j, p.getPixel(i, j) ? RGBA(255, 255, 255, opacity) : RGBA(0, 0, 0, opacity));
                 }
             }
         }
@@ -586,7 +586,7 @@ namespace Sine {
         } else {
             for (int i = 0; i < p.getWidth(); i++) {
                 for (int j = 0; j < p.getHeight(); j++) {
-                    uint8_t temp = p.getPixel(i, j, false);
+                    uint8_t temp = p.getPixel(i, j);
                     setPixel(i, j, RGBA(temp, temp, temp, opacity));
                 }
             }
@@ -599,7 +599,7 @@ namespace Sine {
         } else {
             for (int i = 0; i < p.getWidth(); i++) {
                 for (int j = 0; j < p.getHeight(); j++) {
-                    RGB temp = p.getPixel(i, j, false);
+                    RGB temp = p.getPixel(i, j);
                     setPixel(i, j, RGBA(temp.r, temp.g, temp.b, opacity));
                 }
             }
@@ -612,7 +612,7 @@ namespace Sine {
         } else {
             for (int i = 0; i < p.getWidth(); i++) {
                 for (int j = 0; j < p.getHeight(); j++) {
-                    setPixel(i, j, p.getPixel(i, j, false));
+                    setPixel(i, j, p.getPixel(i, j));
                 }
             }
         }

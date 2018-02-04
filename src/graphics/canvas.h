@@ -52,6 +52,7 @@ namespace Sine {
 
         void copyFrom(const RGBAMap &a);
 
+
         void fill(RGBA color);
 
         void clear();

@@ -20,13 +20,13 @@ namespace Sine {
 
         virtual bool pixelAllowed(int x, int y) const = 0;
 
-        virtual PixelColor getPixel(int i, bool safe = true) = 0;
+        virtual PixelColor getPixel(int i) = 0;
 
-        virtual PixelColor getPixel(int x, int y, bool safe = true) = 0;
+        virtual PixelColor getPixel(int x, int y) = 0;
 
-        virtual void setPixel(int x, int y, PixelColor k, bool safe = true) = 0;
+        virtual void setPixel(int x, int y, PixelColor k) = 0;
 
-        virtual void setPixel(int i, PixelColor k, bool safe = true) = 0;
+        virtual void setPixel(int i, PixelColor k) = 0;
     };
 
     typedef Mask<bool> Bitmask;
@@ -66,13 +66,13 @@ namespace Sine {
 
         void disallowPixel(int x, int y);
 
-        PixelColor getPixel(int x, int y, bool safe = true);
+        PixelColor getPixel(int x, int y);
 
-        PixelColor getPixel(int i, bool safe = true);
+        PixelColor getPixel(int i);
 
-        void setPixel(int x, int y, PixelColor k, bool safe = true);
+        void setPixel(int x, int y, PixelColor k);
 
-        void setPixel(int i, PixelColor k, bool safe = true);
+        void setPixel(int i, PixelColor k);
     };
 
     template<typename PixelColor>
@@ -143,27 +143,27 @@ namespace Sine {
 
 
     template<typename PixelColor>
-    void SimpleMask<PixelColor>::setPixel(int x, int y, PixelColor k, bool safe) {
-        if (!safe || (safe && pixelAllowed(x, y))) {
+    void SimpleMask<PixelColor>::setPixel(int x, int y, PixelColor k) {
+        if (pixelAllowed(x, y)) {
             map->setPixel(x, y, k);
         }
     }
 
     template<typename PixelColor>
-    void SimpleMask<PixelColor>::setPixel(int i, PixelColor k, bool safe) {
-        if (!safe || (safe && pixelAllowed(i))) {
+    void SimpleMask<PixelColor>::setPixel(int i, PixelColor k) {
+        if (pixelAllowed(i)) {
             map->setPixel(i, k);
         }
     }
 
     template<typename PixelColor>
-    PixelColor SimpleMask<PixelColor>::getPixel(int x, int y, bool safe) {
-        return map->getPixel(x, y, safe);
+    PixelColor SimpleMask<PixelColor>::getPixel(int x, int y) {
+        return map->getPixel(x, y);
     }
 
     template<typename PixelColor>
-    PixelColor SimpleMask<PixelColor>::getPixel(int i, bool safe) {
-        return map->getPixel(i, safe);
+    PixelColor SimpleMask<PixelColor>::getPixel(int i) {
+        return map->getPixel(i);
     }
 }
 

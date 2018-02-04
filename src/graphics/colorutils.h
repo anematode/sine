@@ -14,7 +14,7 @@ namespace Sine {
             g += c2.g;
             b += c2.b;
 
-            return RGB(r >> 1, g >> 1, b >> 1);
+            return {r >> 1, g >> 1, b >> 1};
         }
 
         inline RGB add(const RGB &c1, const RGB &c2) {
@@ -27,7 +27,7 @@ namespace Sine {
             int b = c1.b;
             b += c2.b;
 
-            return RGB((r > 255) ? 255 : r, (g > 255) ? 255 : g, (b > 255) ? 255 : b);
+            return {(r > 255) ? 255 : r, (g > 255) ? 255 : g, (b > 255) ? 255 : b};
         }
 
         inline RGB sub(const RGB &c1, const RGB &c2) {
@@ -40,15 +40,16 @@ namespace Sine {
             int b = c1.b;
             b -= c2.b;
 
-            return RGB((r < 0) ? 0 : r, (g < 0) ? 0 : g, (b < 0) ? 0 : b);
+            return {static_cast<color_base>((r < 0) ? 0 : r), static_cast<color_base>((g < 0) ? 0 : g),
+                    static_cast<color_base>((b < 0) ? 0 : b)};
         }
 
         inline RGB mult(const RGB &c1, double d) {
-            int r = (int) c1.r * d;
-            int g = (int) c1.g * d;
-            int b = (int) c1.b * d;
+            int r = (int) (c1.r * d);
+            int g = (int) (c1.g * d);
+            int b = (int) (c1.b * d);
 
-            return RGB(r, g, b);
+            return {r, g, b};
         }
 
         inline RGB mult(const RGB &c1, const RGB &c2) {
@@ -60,7 +61,7 @@ namespace Sine {
             g *= c2.g;
             b *= c2.b;
 
-            return RGB(r / 256.0, g / 256.0, b / 256.0);
+            return {r / 256.0, g / 256.0, b / 256.0};
         }
 
         inline RGB mult(double d, const RGB &c1) {
@@ -78,7 +79,7 @@ namespace Sine {
             b += c2.b;
             a += c2.a;
 
-            return RGBA(r >> 1, g >> 1, b >> 1, a >> 1);
+            return {r >> 1, g >> 1, b >> 1, a >> 1};
         }
 
         inline RGBA add(const RGBA &c1, const RGBA &c2) {
@@ -94,7 +95,7 @@ namespace Sine {
             int a = c1.a;
             a += c2.a;
 
-            return RGBA((r > 255) ? 255 : r, (g > 255) ? 255 : g, (b > 255) ? 255 : b, (a > 255) ? 255 : a);
+            return {(r > 255) ? 255 : r, (g > 255) ? 255 : g, (b > 255) ? 255 : b, (a > 255) ? 255 : a};
         }
 
         inline RGBA sub(const RGBA &c1, const RGBA &c2) {
@@ -110,16 +111,16 @@ namespace Sine {
             int a = c1.a;
             a -= c2.a;
 
-            return RGBA((r < 0) ? 0 : r, (g < 0) ? 0 : g, (b < 0) ? 0 : b, (a < 0) ? 0 : a);
+            return {(r < 0) ? 0 : r, (g < 0) ? 0 : g, (b < 0) ? 0 : b, (a < 0) ? 0 : a};
         }
 
         inline RGBA mult(const RGBA &c1, double d) {
-            int r = (int) c1.r * d;
-            int g = (int) c1.g * d;
-            int b = (int) c1.b * d;
-            int a = (int) c1.a * d;
+            int r = (int) (c1.r * d);
+            int g = (int) (c1.g * d);
+            int b = (int) (c1.b * d);
+            int a = (int) (c1.a * d);
 
-            return RGBA(r, g, b, a);
+            return {r, g, b, a};
         }
 
         inline RGBA mult(const RGBA &c1, const RGBA &c2) {
@@ -133,8 +134,7 @@ namespace Sine {
             b *= c2.b;
             a *= c2.a;
 
-            return RGBA(static_cast<color_base>(r / 256.0), static_cast<color_base>(g / 256.0),
-                        static_cast<color_base>(b / 256.0), static_cast<color_base>(a / 256.0));
+            return {r / 256, g / 256, b / 256, a / 256};
         }
 
         inline RGBA mult(double d, const RGBA &c1) {
@@ -153,9 +153,7 @@ namespace Sine {
 
             int a = c1.a + c2.a;
 
-            return RGBA(static_cast<color_base>((r > 255) ? 255 : r), static_cast<color_base>((g > 255) ? 255 : g),
-                        static_cast<color_base>((b > 255) ? 255 : b),
-                        static_cast<color_base>((a > 255) ? 255 : a));
+            return {(r > 255) ? 255 : r, (g > 255) ? 255 : g, (b > 255) ? 255 : b, (a > 255) ? 255 : a};
         }
 
         inline RGBA merge(const RGB &c1, const RGBA &c2) {
@@ -165,17 +163,17 @@ namespace Sine {
 
         inline HSL saturate(const HSL &c, int d) {
             int ns = c.s + d;
-            return HSL(c.h, (ns > 255) ? 255 : ns, c.l);
+            return {c.h, (ns > 255) ? 255 : ns, c.l};
         }
 
         inline HSL desaturate(const HSL &c, int d) {
             int ns = c.s - d;
-            return HSL(c.h, (ns < 0) ? 0 : ns, c.l);
+            return {c.h, (ns < 0) ? 0 : ns, c.l};
         }
 
         inline HSL lighten(const HSL &c, int d) {
             int nl = c.l + d;
-            return HSL(c.h, c.s, (nl > 255) ? 255 : nl);
+            return {c.h, c.s, (nl > 255) ? 255 : nl};
         }
 
         inline HSL darken(const HSL &c, int d) {
