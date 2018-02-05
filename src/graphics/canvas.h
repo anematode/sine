@@ -9,6 +9,7 @@
 #include "imageloader.h"
 #include "colorutils.h"
 #include <cmath>
+#include <type_traits>
 #include <algorithm>
 
 namespace Sine::Graphics {
@@ -61,93 +62,96 @@ namespace Sine::Graphics {
         explicit Canvas(const RGBAMap &rgbamap);
 
         /**
-         * Safely pastes a Bitmap at position (x, y), with the top left of the Bitmap coinciding with (x, y).
-         * @param image Bitmap instance.
+         * Safely pastes a Pixmap at position (x, y), with the top left of the Bitmap coinciding with (x, y).
+         * @tparam T Pixel type of Pixmap.
+         * @param image Pixmap<T> instance.
          * @param x X coordinate of paste point.
          * @param y Y coordinate of paste point.
          */
-        void pasteImage(Bitmap &image, int x = 0, int y = 0);
+        template<typename T>
+        inline void pasteImage(const Pixmap<T> &image, int x = 0, int y = 0) {
+            int minHeight = std::min(height, image.getHeight() + y); // Height to start iterating from
+            int minWidth = std::min(width, image.getWidth() + x); // Width to start iterating from
+
+            int sample_x = -std::min(x, 0); // Height to start iterating from in image
+            int sample_y; // Width to start iterating from in image
+
+            for (int i = std::max(x, 0); i < minWidth; i++) {
+                sample_y = -std::min(y, 0);
+                for (int j = std::max(y, 0); j < minHeight; j++) {
+                    setPixelUnsafe(i, j, ColorUtils::getRGBA(
+                            image.getPixelUnsafe(sample_x, sample_y))); // Set to pure white or pure black
+                    sample_y++;
+                }
+                sample_x++;
+            }
+        }
 
         /**
-         * Safely pastes a Graymap at position (x, y), with the top left of the Graymap coinciding with (x, y).
-         * @param image Graymap instance.
-         * @param x X coordinate of paste point.
-         * @param y Y coordinate of paste point.
+         * Given a functor func which takes 1. a reference to a pixel and 2. a const reference to another pixel,
+         * and which sets the first reference to something, apply the functor to mix two images together.
+         *
+         * @tparam T Pixel type of Pixmap
+         * @tparam Func Type of functor
+         * @param image Pixmap instance
+         * @param func Functor
+         * @param x X coordinate of paste position
+         * @param y Y coordinate of paste position
          */
-        void pasteImage(Graymap &image, int x = 0, int y = 0);
+        template<typename T, typename Func>
+        inline void mixImageByFunction(const Pixmap<T> &image, Func func, int x = 0, int y = 0) {
+            int minHeight = std::min(height, image.getHeight() + y); // Height to start iterating from
+            int minWidth = std::min(width, image.getWidth() + x); // Width to start iterating from
+
+            int sample_x = -std::min(x, 0); // Height to start iterating from in image
+            int sample_y; // Width to start iterating from in image
+
+            for (int i = std::max(x, 0); i < minWidth; i++) {
+                sample_y = -std::min(y, 0);
+                for (int j = std::max(y, 0); j < minHeight; j++) {
+                    func(getPixelUnsafe(i, j), image.getPixelUnsafe(sample_x, sample_y));
+                    sample_y++;
+                }
+                sample_x++;
+            }
+        };
 
         /**
-         * Safely pastes a RGBMap at position (x, y), with the top left of the RGBMap coinciding with (x, y).
-         * @param image RGBMap instance.
-         * @param x X coordinate of paste point.
-         * @param y Y coordinate of paste point.
+         * Succulent templated function which merges an image based on a few predefined methods.
+         * @tparam mix Mix type
+         * @tparam T Pixel type of Pixmap
+         * @param image Pixmap instance
+         * @param x X coordinate of pasted position
+         * @param y Y coordinate of pasted position
          */
-        void pasteImage(RGBMap &image, int x = 0, int y = 0);
+        template<ColorUtils::ColorMix mix = ColorUtils::ColorMix::MERGE, typename T>
+        void mixImage(const Pixmap<T> &image, int x = 0, int y = 0) {
+            typename ColorUtils::ColorMixFunctor<mix>::internal udder;
+
+            mixImageByFunction(image, udder.func, x, y);
+        }
 
         /**
-         * Safely pastes a RGBAMap at position (x, y), with the top left of the RGBAMap coinciding with (x, y).
-         * @param image RGBAMap instance.
-         * @param x X coordinate of paste point.
-         * @param y Y coordinate of paste point.
-         */
-        void pasteImage(RGBAMap &image, int x = 0, int y = 0);
-
-        /**
-         * Mixes a Bitmap at position (x, y), with the top left of the Bitmap coinciding with (x, y).
-         * @param image Bitmap instance.
-         * @param x X coordinate of paste point.
-         * @param y Y coordinate of paste point.
-         * @param mix Type of mix.
-         */
-        void mixImage(Bitmap &image, int x = 0, int y = 0, ColorUtils::ColorMix mix = ColorUtils::ColorMix::ADDITION);
-
-        /**
-         * Mixes a Graymap at position (x, y), with the top left of the Graymap coinciding with (x, y).
-         * @param image Graymap instance.
-         * @param x X coordinate of paste point.
-         * @param y Y coordinate of paste point.
-         * @param mix Type of mix.
-         */
-        void mixImage(Graymap &image, int x = 0, int y = 0, ColorUtils::ColorMix mix = ColorUtils::ColorMix::ADDITION);
-
-        /**
-         * Mixes a RGBMap at position (x, y), with the top left of the RGBMap coinciding with (x, y).
-         * @param image RGBMap instance.
-         * @param x X coordinate of paste point.
-         * @param y Y coordinate of paste point.
-         * @param mix Type of mix.
-         */
-        void mixImage(RGBMap &image, int x = 0, int y = 0, ColorUtils::ColorMix mix = ColorUtils::ColorMix::ADDITION);
-
-        /**
-         * Mixes a RGBAMap at position (x, y), with the top left of the RGBAMap coinciding with (x, y).
-         * @param image RGBAMap instance.
-         * @param x X coordinate of paste point.
-         * @param y Y coordinate of paste point.
-         * @param mix Type of mix.
-         */
-        void mixImage(RGBAMap &image, int x = 0, int y = 0, ColorUtils::ColorMix mix = ColorUtils::ColorMix::ADDITION);
-
-        /**
-         * Copies from Bitmap after construction
-         * @param bitmap Bitmap instance.
+         * Copies from Pixmap<T>
+         * @tparam T Internal type of Pixmap
+         * @param pixmap Pixmap instance.
          * @param opacity Opacity of Canvas after copying.
          */
-        void copyFrom(const Bitmap &bitmap, uint8_t opacity = 255);
+        template<typename T, typename = typename std::enable_if<!std::is_same<T, RGBA>::value>>
+        inline void copyFrom(const Pixmap<T> &pixmap, uint8_t opacity = 255) {
+            if (pixmap.getWidth() != width || pixmap.getHeight() != height) {
+                throw std::logic_error("Pixmaps must be of the same dimensions for copying.");
+            } else {
+                for (int i = 0; i < pixmap.getWidth(); i++) {
+                    for (int j = 0; j < pixmap.getHeight(); j++) {
+                        RGBA k = ColorUtils::getRGBA(pixmap.getPixelUnsafe(i, j));
+                        k.a = opacity;
 
-        /**
-         * Copies from Graymap after construction
-         * @param graymap Graymap instance.
-         * @param opacity Opacity of Canvas after copying.
-         */
-        void copyFrom(const Graymap &graymap, uint8_t opacity = 255);
-
-        /**
-         * Copies from RGBMap after construction
-         * @param rgbmap RGBMap instance.
-         * @param opacity Opacity of Canvas after copying.
-         */
-        void copyFrom(const RGBMap &rgbmap, uint8_t opacity = 255);
+                        setPixelUnsafe(i, j, k);
+                    }
+                }
+            }
+        }
 
         /**
          * Uses Pixmap<RGBA> copying.

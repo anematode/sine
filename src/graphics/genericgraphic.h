@@ -17,8 +17,6 @@ namespace Sine::Graphics {
     private:
         int xmin;
         int ymin;
-
-        ColorUtils::ColorMix mix;
     public:
         /**
          * Simple constructor.
@@ -26,10 +24,8 @@ namespace Sine::Graphics {
          * @param height Height of Graphic.
          * @param xmin X position of top left corner.
          * @param ymin Y position of top left corner.
-         * @param _mix Type of mixing operation when pasting.
          */
-        GenericGraphic(int width, int height, int xmin = 0, int ymin = 0,
-                       ColorUtils::ColorMix _mix = ColorUtils::ColorMix::MERGE);
+        GenericGraphic(int width, int height, int xmin = 0, int ymin = 0);
 
         /**
          * Implementation of render; just mixes in the Graphic at the specified location.

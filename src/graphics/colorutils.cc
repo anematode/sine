@@ -251,5 +251,21 @@ namespace Sine::Graphics {
         color_base getOpacity(const RGBA &rgba) {
             return rgba.a;
         }
+
+        RGBA getRGBA(const RGBA &c) {
+            return c;
+        }
+
+        RGBA getRGBA(const RGB &c) {
+            return c.rgba();
+        }
+
+        RGBA getRGBA(uint8_t c) {
+            return RGBA(c, c, c, 255);
+        }
+
+        RGBA getRGBA(bool c) {
+            return (c ? RGBA(255, 255, 255, 255) : RGBA(0, 0, 0, 255));
+        }
     }
 }

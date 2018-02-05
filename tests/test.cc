@@ -7,22 +7,26 @@
 int main() {
     using namespace Sine::Graphics;
     {
-        Canvas image_temp{"/Users/timoothy/Desktop/udd.png"};
-        Sine::General::DefaultTimer timer{"load image 0001"};
+        Canvas image_temp{"/Users/timoothy/Desktop/nico_backward.jpg"};
 
-        /*auto c = [](Sine::RGBA &c) {
-            uint8_t lum = Sine::ColorUtils::getLuminance(c);
-            c = Sine::RGBA(lum, lum, lum, c.a);
-        };
+        {
+            Sine::General::DefaultTimer timer{"load image 0001"};
 
-        image_temp.apply(c);*/
+            image_temp.apply([](RGBA &c, int i) {
+                c.r *= c.g / 50.0;
+                c.g *= c.b / 30.0;
+                c.b *= 10;
 
-        Filters::GaussianBlur<400> blur;
+                c.r += (i % 255) / 39.0;
+                c.g += (i % 230) / 50.0;
+                c.b -= (i % 109) / 20.3;
+            });
 
-        blur.applyTo(image_temp);
+            Sine::Graphics::Filters::GaussianBlur<4> blur;
 
-        //std::cout << get_functor_traits<decltype(c)>::arg_count << std::endl;
+            blur.applyTo(image_temp);
+        }
 
-        image_temp.exportToFile("/Users/timoothy/Desktop/udder.png");
+        image_temp.exportToFile("/Users/timoothy/Desktop/weirdo_jennifer.jpg");
     }
 }
