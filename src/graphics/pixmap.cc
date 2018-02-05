@@ -4,12 +4,11 @@
 
 #include "pixmap.h"
 
-namespace Sine {
-
+namespace Sine::Graphics {
 
     template<typename PixelColor>
     Pixmap<PixelColor>::Pixmap(int w, int h) {
-        pixels = new PixelColor[w * h];
+        pixels = new PixelColor[w * h]; // Allocate pixels
         width = w;
         height = h;
         area = (width * height);
@@ -67,10 +66,8 @@ namespace Sine {
         if (p.getWidth() != width || p.getHeight() != height) {
             throw std::logic_error("Pixmaps must be of the same dimensions for copying.");
         } else {
-            for (int i = 0; i < p.getWidth(); i++) {
-                for (int j = 0; j < p.getHeight(); j++) {
-                    setPixel(i, j, p.getPixel(i, j));
-                }
+            for (int i = 0; i < p.getArea(); i++) {
+                setPixelUnsafe(i, p.getPixelUnsafe(i));
             }
         }
     }
@@ -112,7 +109,7 @@ namespace Sine {
 
     template<typename PixelColor>
     bool Pixmap<PixelColor>::pairContained(int x, int y) const {
-        return (0 <= x && x < width && 0 <= y && y < width);
+        return (0 <= x && x < width && 0 <= y && y < height);
     }
 
     template<typename PixelColor>
@@ -127,9 +124,12 @@ namespace Sine {
     template<typename PixelColor>
     void Pixmap<PixelColor>::checkPair(int x, int y) const {
         if (!pairContained(x, y)) {
-            throw std::out_of_range(
-                    "Tried to access pixel at x,y = " + Vec2f(x, y).toString() +
-                    ", max dimensions are " + Vec2f(width, height).toString() + ".");
+            throw std::out_of_range("Tried to access pixel at x,y = " +
+                                    std::to_string(x) +
+                                    ',' + std::to_string(y)
+                                    + ", max dimensions are "
+                                    + std::to_string(width)
+                                    + ',' + std::to_string(height) + ".");
         }
     }
 
@@ -160,7 +160,7 @@ namespace Sine {
 
         for (int i = 0; i < newWidth; i++) {
             for (int j = 0; j < newHeight; j++) {
-                ret.setPixel(i, j, getPixel(i / b, j / b));
+                ret.setPixelUnsafe(i, j, getPixel(i / b, j / b));
             }
         }
 
@@ -175,14 +175,14 @@ namespace Sine {
     }
 
     template<typename PixelColor>
-    PixelColor &Pixmap<PixelColor>::getPixelRef(int index) {
+    PixelColor &Pixmap<PixelColor>::getPixel(int index) {
         checkIndex(index);
 
         return pixels[index];
     }
 
     template<typename PixelColor>
-    PixelColor &Pixmap<PixelColor>::getPixelRef(int x, int y) {
+    PixelColor &Pixmap<PixelColor>::getPixel(int x, int y) {
         checkPair(x, y);
 
         return pixels[pairToIndex(x, y)];
@@ -216,12 +216,12 @@ namespace Sine {
     }
 
     template<typename PixelColor>
-    PixelColor &Pixmap<PixelColor>::getPixelRefUnsafe(int index) {
+    PixelColor &Pixmap<PixelColor>::getPixelUnsafe(int index) {
         return pixels[index];
     }
 
     template<typename PixelColor>
-    PixelColor &Pixmap<PixelColor>::getPixelRefUnsafe(int x, int y) {
+    PixelColor &Pixmap<PixelColor>::getPixelUnsafe(int x, int y) {
         return pixels[pairToIndex(x, y)];
     }
 
@@ -388,8 +388,8 @@ namespace Sine {
     void Pixmap<bool>::exportToBMP(std::string path) {
         Pixmap<uint8_t> temp(getWidth(), getHeight());
 
-        for (size_t index = 0; index < getArea(); index++) {
-            temp.setPixel(index, (getPixel(index) ? 255 : 0));
+        for (long index = 0; index < getArea(); index++) {
+            temp.setPixelUnsafe(index, (getPixelUnsafe(index) ? 255 : 0));
         }
 
         temp.exportToBMP(path);
@@ -399,8 +399,8 @@ namespace Sine {
     void Pixmap<bool>::exportToJPEG(std::string path, int quality) {
         Pixmap<uint8_t> temp = Pixmap<uint8_t>(getWidth(), getHeight());
 
-        for (size_t index = 0; index < getArea(); index++) {
-            temp.setPixel(index, (getPixel(index) ? 255 : 0));
+        for (long index = 0; index < getArea(); index++) {
+            temp.setPixel(index, (getPixelUnsafe(index) ? 255 : 0));
         }
 
         temp.exportToJPEG(path, quality);
@@ -416,7 +416,7 @@ namespace Sine {
         Pixmap<uint8_t> temp = Pixmap<uint8_t>(getWidth(), getHeight());
 
         for (int index = 0; index < getArea(); index++) {
-            temp.setPixel(index, (getPixel(index) ? 255 : 0));
+            temp.setPixel(index, (getPixelUnsafe(index) ? 255 : 0));
         }
 
         temp.exportToPNG(path);
@@ -595,7 +595,7 @@ namespace Sine {
 
     template<typename PixelColor>
     PixelColor &Pixmap<PixelColor>::operator()(int row, int col) {
-        return getPixelRef(row, col);
+        return getPixel(row, col);
     }
 
     template<typename PixelColor>
@@ -605,7 +605,7 @@ namespace Sine {
 
     template<typename PixelColor>
     PixelColor &Pixmap<PixelColor>::operator()(int i) {
-        return getPixelRef(i);
+        return getPixel(i);
     }
 
     template<typename PixelColor>

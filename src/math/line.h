@@ -7,7 +7,9 @@
 
 #include <cmath>
 
-namespace Sine {
+namespace Sine::Math {
+
+    // TODO: Implement
     template<typename T>
     class Line {
     public:

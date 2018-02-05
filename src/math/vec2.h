@@ -5,53 +5,132 @@
 #include <ostream>
 #include <complex>
 
-namespace Sine {
+namespace Sine::Math {
 
+    /**
+     * 2D Vector class.
+     * @tparam T Internal type.
+     */
     template<typename T = double>
     struct Vec2 {
         T x;
         T y;
 
+        /**
+         * Default constructor.
+         */
         Vec2() {
             x = 0;
             y = 0;
         }
 
+        /**
+         * Simple constructor.
+         * @param x X component
+         * @param y Y component
+         */
         Vec2(T x, T y) {
             this->x = x;
             this->y = y;
         }
 
+        /**
+         * Copy constructor.
+         * @param v vector
+         */
+        Vec2(const Vec2 &v) {
+            x = v.x;
+            y = v.y;
+        }
+
+        /**
+         * Distance from origin (i.e. magnitude).
+         * @return sqrt(x * x + y * y)
+         */
         T distance() const;
 
-        T distance(T, T) const;
+        /**
+         * Distance to (_x, _y).
+         * @param _x x
+         * @param _y y
+         * @return distance
+         */
+        T distance(T _x, T _y) const;
 
-        T distance(const Vec2 &) const;
+        /**
+         * Distance to vec.
+         * @param vec Vec2 instance.
+         * @return distance
+         */
+        T distance(const Vec2 &vec) const;
 
+        /**
+         * Distance squared from origin (i.e. magnitude squared).
+         * @return distance squared
+         */
         T distanceSquared() const;
 
+        /**
+         * Distance squared from (_x, _y).
+         * @param _x x
+         * @param _y y
+         * @return distance squared
+         */
         T distanceSquared(T, T) const;
 
-        T distanceSquared(const Vec2 &) const;
+        /**
+         * Distance squared from vec.
+         * @param vec vector
+         * @return distance squared
+         */
+        T distanceSquared(const Vec2 &vec) const;
 
-        bool operator==(const Vec2 &) const;
+        /**
+         * Equality comparison.
+         * @param vec vector
+         * @return Whether the two are equal.
+         */
+        bool operator==(const Vec2 &vec) const;
 
-        Vec2 operator+(const Vec2 &) const;
+        /**
+         * Addition operation.
+         * @param vec vector
+         * @return *this + vector
+         */
+        Vec2 operator+(const Vec2 &vec) const;
 
-        Vec2 operator-(const Vec2 &) const;
+        /**
+         * Addition operation.
+         * @param vec vector
+         * @return *this - vector
+         */
+        Vec2 operator-(const Vec2 &vec) const;
 
-        Vec2 operator*(T) const;
+        /**
+         * Multiplication operation.
+         * @param d scale factor
+         * @return *this * d
+         */
+        Vec2 operator*(T d) const;
 
-        Vec2 operator/(T) const;
+        /**
+         * Division operation.
+         * @param d scale factor
+         * @return *this / d
+         */
+        Vec2 operator/(T d) const;
+
+        // I won't document this stuff because it's pretty obvious at this point. Maybe later.
+        // TODO: Document Sine::Vec2, Sine::Vec3
 
         template<typename U>
-        friend std::ostream &operator<<(std::ostream &, const Vec2<U> &);
+        friend std::ostream &operator<<(std::ostream &os, const Vec2<U> &vec);
 
         template<typename U, typename V>
-        friend Vec2<U> operator*(V, const Vec2<U> &);
+        friend Vec2<U> operator*(V, const Vec2<U> &vec);
 
         template<typename U, typename V>
-        friend Vec2<U> operator/(V, const Vec2<U> &);
+        friend Vec2<U> operator/(V, const Vec2<U> &vec);
 
         std::string toString() const;
 
@@ -93,6 +172,11 @@ namespace Sine {
     template<typename T>
     T Vec2<T>::distance(const Vec2 &vec) const {
         return distance(vec.x, vec.y);
+    }
+
+    template<typename T>
+    T Vec2<T>::distanceSquared() const {
+        return x * x + y * y;
     }
 
     template<typename T>

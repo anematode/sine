@@ -4,8 +4,11 @@
 #include <string>
 #include <fstream>
 
-namespace Sine {
+namespace Sine::Graphics {
 
+    /**
+     * Enum abstracting the type of an image.
+     */
     enum class ImageType {
         UNKNOWN,
         JPEG,
@@ -18,8 +21,20 @@ namespace Sine {
         PPM
     };
 
+
+    /**
+     * Extract the (expected) type of an image from its filename.
+     * @param filename Location of file.
+     * @return Enum of file type.
+     */
     ImageType extractImageType(std::string filename) noexcept;
 
+
+    /**
+     * Check if a file exists.
+     * @param filename Name of file.
+     * @return Whether the file is openable.
+     */
     bool fileExists(const char *fileName);
 
 } // namespace Sine

@@ -6,22 +6,23 @@
 #include <iostream>
 #include "timer.h"
 
-namespace Sine {
+namespace Sine::General {
     template<typename T>
     Timer<T>::Timer() : time_ref(nullptr), id("") {
         start = std::chrono::high_resolution_clock::now();
     }
 
     template<typename T>
-    Timer<T>::Timer(long &time) : time_ref(&time) {
+    Timer<T>::Timer(long &time) : time_ref(&time) { // initialize time_ref to point to time
         start = std::chrono::high_resolution_clock::now();
     }
 
     template<typename T>
-    Timer<T>::Timer(const std::string &_id) : time_ref(nullptr), id(_id) {
+    Timer<T>::Timer(const std::string &_id) : time_ref(nullptr), id(_id) { // set internal id to given id
         start = std::chrono::high_resolution_clock::now();
     }
 
+    // Getting name of time unit uses template specialization
     template<typename T>
     std::string Timer<T>::getUnit() {
         return "";
@@ -53,16 +54,17 @@ namespace Sine {
 
         long delta = std::chrono::duration_cast<T>(end - start).count();
 
-        if (time_ref) {
+        if (time_ref) { // if a long was passed (i.e. it is not nullptr), write to it
             *time_ref = delta;
         } else {
-            if (!id.empty()) {
+            if (!id.empty()) { // if an id was given, print it
                 std::cout << id << ": ";
             }
-            std::cout << delta << ' ' << getUnit() << '\n';
+            std::cout << delta << ' ' << getUnit() << '\n'; // output time
         }
     }
 
+    // Explicit template instantation so the function definitions don't have to be in the header
     template
     class Timer<seconds>;
 

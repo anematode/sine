@@ -4,8 +4,10 @@
 #include "filter.h"
 #include "../colorutils.h"
 
-namespace Sine {
+namespace Sine::Graphics {
     namespace Filters {
+
+        // TODO: Redesign Saturate
         class Saturate : public Filter {
         private:
             int saturation;

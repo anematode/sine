@@ -4,7 +4,7 @@
 
 #include "imageutils.h"
 
-namespace Sine {
+namespace Sine::Graphics {
     ImageType extractImageType(std::string filename) noexcept {
         std::string extension;
 
@@ -46,8 +46,8 @@ namespace Sine {
         return ImageType::UNKNOWN;
     }
 
-    bool fileExists(const char *fileName) {
-        std::ifstream infile(fileName);
+    bool fileExists(const char *filename) {
+        std::ifstream infile(filename);
         return infile.good();
     }
 

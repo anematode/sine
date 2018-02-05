@@ -7,11 +7,20 @@
 
 #include <chrono>
 
-namespace Sine {
+namespace Sine::General {
     typedef std::chrono::seconds seconds;
     typedef std::chrono::milliseconds milliseconds;
     typedef std::chrono::microseconds microseconds;
     typedef std::chrono::nanoseconds nanoseconds;
+
+    /**
+     * Sine::Timer is an automatic, scope-bound Timer.
+     *
+     * Its constructor starts an internal clock and whose destructor outputs the duration since construction.
+     * As such, it times the length of a scope.
+     *
+     * @tparam T Unit measured (Sine::seconds, Sine::milliseconds, Sine::microseconds, Sine::nanoseconds).
+     */
 
     template<typename T = milliseconds>
     class Timer {
@@ -24,15 +33,32 @@ namespace Sine {
         timestamp start;
         timestamp end;
     public:
-
+        /**
+         * Default constructor.
+         */
         Timer();
 
-        explicit Timer(long &microseconds);
+        /**
+         * Constructor given a reference to long, which is written to at destruction.
+         * @param output Reference to long int.
+         */
+        explicit Timer(long &output);
 
+        /**
+         * Constructor given a std::string, which is printed out to std::cout along with the time elapsed at destruction.
+         * @param id Output id.
+         */
         explicit Timer(const std::string &id);
 
-        std::string getUnit();
+        /**
+         * Internal method to get a string representation of the unit (e.g. ms for milliseconds).
+         * @return String representation of @tparam T.
+         */
+        static std::string getUnit();
 
+        /**
+         * Destructor which handles output to std::cout.
+         */
         ~Timer();
     };
 

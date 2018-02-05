@@ -4,8 +4,7 @@
 
 #include "renderingcontext.h"
 
-namespace Sine {
-
+namespace Sine::Graphics {
     RenderingContext::RenderingContext(int width, int height) : Canvas(width, height) {
 
     }
@@ -50,22 +49,5 @@ namespace Sine {
 
     Graphic &RenderingContext::getGraphic(std::string id) {
         return *graphics[id];
-    }
-
-    void RenderingContext::setPref(const std::string &id, Pref pref) {
-        prefs[id] = pref;
-    }
-
-
-    bool RenderingContext::hasPref(const std::string &c) {
-        return (prefs.find(c) != prefs.end());
-    }
-
-    RenderingContext::Pref RenderingContext::getPref(const std::string &id) {
-        return prefs[id];
-    }
-
-    void RenderingContext::removePref(const std::string &id) {
-        prefs.erase(id);
     }
 }

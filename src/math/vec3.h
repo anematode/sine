@@ -4,7 +4,7 @@
 #include <cmath>
 #include <ostream>
 
-namespace Sine {
+namespace Sine::Math {
 
     template<typename T = double>
     struct Vec3 {

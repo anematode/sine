@@ -4,21 +4,21 @@
 
 #include "imageloader.h"
 
-namespace Sine {
+namespace Sine::Graphics {
 
     template<typename P>
     P ImageLoader<P>::load(const std::string &filename) {
         int x, y, n;
 
-        unsigned char *data = stbi_load(filename.c_str(), &x, &y, &n, 0);
-        if (data == nullptr) {
+        unsigned char *data = stbi_load(filename.c_str(), &x, &y, &n, 0); /// Interface to stbi_load
+        if (data == nullptr) { // If data is invalid, throw an error
             throw std::runtime_error("Image does not exist or is inaccessible.");
         }
 
         P p(x, y);
 
         if (p.ColorSize == n) {
-            p.setPixelPointer(static_cast<void *>(data));
+            p.setPixelPointer(static_cast<void *>(data)); // Set pointer of Pixmap to correct location
             return p;
         } else {
             throw std::runtime_error("Invalid data type length for image.");
@@ -193,15 +193,13 @@ namespace Sine {
         }
     }
 
+    // Explicit instantiation to make linker happy
     template
-    class ImageLoader<Bitmap>;
-
+    struct ImageLoader<Bitmap>;
     template
-    class ImageLoader<Graymap>;
-
+    struct ImageLoader<Graymap>;
     template
-    class ImageLoader<RGBMap>;
-
+    struct ImageLoader<RGBMap>;
     template
-    class ImageLoader<RGBAMap>;
+    struct ImageLoader<RGBAMap>;
 }

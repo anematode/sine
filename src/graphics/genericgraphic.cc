@@ -4,24 +4,14 @@
 
 #include "genericgraphic.h"
 
-namespace Sine {
-    GenericGraphic::GenericGraphic(int width, int height, int _xmin, int _ymin) : Canvas(width, height), xmin(_xmin),
-                                                                                  ymin(_ymin) {
-
+namespace Sine::Graphics {
+    GenericGraphic::GenericGraphic(int width, int height, int _xmin, int _ymin, ColorUtils::ColorMix _mix) : Canvas(
+            width, height), xmin(_xmin),
+                                                                                                             ymin(_ymin),
+                                                                                                             mix(_mix) {
     }
 
     void GenericGraphic::render(RenderingContext &p) {
-        p.mixImage(*this, xmin, ymin, ColorUtils::ColorMix::MERGE);
-        /*int max_i = std::min(p.getWidth(), width + xmin);
-        int max_j = std::min(p.getHeight(), height + ymin);
-
-        int sample_x = 0;
-
-        for (int i = xmin; i < max_i; i++, sample_x++) {
-            int sample_y = 0;
-            for (int j = ymin; j < max_j; j++, sample_y++) {
-                p.setPixel(i, j, getPixel(sample_x, sample_y, false), false);
-            }
-        }*/
+        p.mixImage(*this, xmin, ymin, mix);
     }
 }
