@@ -62,17 +62,6 @@ namespace Sine::Graphics {
     }
 
     template<typename PixelColor>
-    void Pixmap<PixelColor>::copyFrom(const Pixmap<PixelColor> &p) {
-        if (p.getWidth() != width || p.getHeight() != height) {
-            throw std::logic_error("Pixmaps must be of the same dimensions for copying.");
-        } else {
-            for (int i = 0; i < p.getArea(); i++) {
-                setPixelUnsafe(i, p.getPixelUnsafe(i));
-            }
-        }
-    }
-
-    template<typename PixelColor>
     Pixmap<PixelColor>::~Pixmap() {
         delete[] pixels;
     }

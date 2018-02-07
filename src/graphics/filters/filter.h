@@ -36,6 +36,18 @@ namespace Sine::Graphics {
              */
             virtual void applyTo(RGBAMap &map) = 0;
         };
+
+        /*template <typename T, typename Func>
+        class FunctorFilter : public Filter {
+        public:
+            void applyTo(Bitmap &p);
+
+            void applyTo(Graymap &p);
+
+            void applyTo(RGBMap &p);
+
+            void applyTo(RGBAMap &p);
+        };*/
     }
 }
 

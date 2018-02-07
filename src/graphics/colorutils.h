@@ -245,6 +245,18 @@ namespace Sine::Graphics {
          */
         color_base getOpacity(const RGBA &rgba);
 
+        template<typename T>
+        T getColor(bool c);
+
+        template<typename T>
+        T getColor(uint8_t c);
+
+        template<typename T>
+        T getColor(const RGB &c);
+
+        template<typename T>
+        T getColor(const RGBA &c);
+
         /**
          * Extract RGBA from color.
          * @param c color

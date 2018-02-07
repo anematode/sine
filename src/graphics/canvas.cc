@@ -11,7 +11,6 @@ namespace Sine::Graphics {
 
     Canvas::Canvas(const std::string &filename) : Pixmap<RGBA>(
             ImageLoader<RGBAMap>::loadAny(filename)) { // Load file using ImageLoader
-
     }
 
     Canvas::Canvas(const Canvas &p) : Pixmap<RGBA>(p.getWidth(), p.getHeight()) {
@@ -49,4 +48,36 @@ namespace Sine::Graphics {
     void Canvas::clear() {
         fill(RGBA(255, 255, 255, 0));
     }
+
+    Canvas &Canvas::operator=(const Canvas &c) {
+        if (c.getArea() != area) {
+            delete[] pixels;
+            pixels = new RGBA[c.getArea()];
+            area = c.getArea();
+        }
+
+        for (int i = 0; i < area; i++) {
+            setPixelUnsafe(i, c.getPixelUnsafe(i));
+        }
+
+        width = c.getWidth();
+        height = c.getHeight();
+
+        return *this;
+    };
+
+    /**
+     * Use Pixmap<RGBA> assignment, copy, move operators
+     */
+    Canvas &Canvas::operator=(Canvas &&c) noexcept {
+        delete[] pixels;
+
+        pixels = c.pixels;
+        c.pixels = nullptr;
+
+        width = c.getWidth();
+        height = c.getHeight();
+
+        return *this;
+    };
 }

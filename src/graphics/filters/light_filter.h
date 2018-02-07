@@ -8,18 +8,9 @@ namespace Sine::Graphics {
     namespace Filters {
 
         // TODO: Redesign Lighten
-        class Lighten : public Filter {
-        private:
-            int amount;
-        public:
-            Lighten(int amt = 0);
 
-            void applyTo(Graymap &p);
 
-            void applyTo(RGBMap &p);
-
-            void applyTo(RGBAMap &p);
-        };
+        /**
 
         Lighten::Lighten(int amt) {
             amount = amt;
@@ -90,7 +81,7 @@ namespace Sine::Graphics {
                 temp = a.b - amount;
                 a.b = (temp < 0) ? 0 : temp;
             }
-        }
+        }**/
     }
 }
 

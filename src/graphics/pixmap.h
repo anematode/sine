@@ -12,6 +12,7 @@
 #include <fstream>
 
 #include "stb_image_write.h"
+#include "colorutils.h"
 
 #include <cmath>
 #include <functional>
@@ -253,12 +254,6 @@ namespace Sine::Graphics {
          * @return Returns *this.
          */
         Pixmap<PixelColor> &operator=(Pixmap<PixelColor> &&pixmap) noexcept;
-
-        /**
-         * Copy from Pixmap without using the copy constructor
-         * @param pixmap Copied Pixmap instance.
-         */
-        void copyFrom(const Pixmap<PixelColor> &pixmap);
 
         /**
          * Pointer used for C++11-style iteration.
@@ -563,6 +558,52 @@ namespace Sine::Graphics {
         template<typename T>
         inline void apply(T func) {
             _apply_l<T>(func); // Forward to _apply_l so that it can be handled with SFINAE internally
+        }
+
+
+        /**
+         * Safely pastes a Pixmap at position (x, y), with the top left of the Bitmap coinciding with (x, y).
+         * @tparam T Pixel type of Pixmap.
+         * @param image Pixmap<T> instance.
+         * @param x X coordinate of paste point.
+         * @param y Y coordinate of paste point.
+         */
+        template<typename T>
+        inline void pasteImage(const Pixmap<T> &image, int x = 0, int y = 0) {
+            int minHeight = std::min(height, image.getHeight() + y); // Height to start iterating from
+            int minWidth = std::min(width, image.getWidth() + x); // Width to start iterating from
+
+            int sample_x = -std::min(x, 0); // Height to start iterating from in image
+            int sample_y; // Width to start iterating from in image
+
+            for (int i = std::max(x, 0); i < minWidth; i++) {
+                sample_y = -std::min(y, 0);
+                for (int j = std::max(y, 0); j < minHeight; j++) {
+                    setPixelUnsafe(i, j, ColorUtils::getColor<PixelColor>(
+                            image.getPixelUnsafe(sample_x, sample_y))); // Set to pure white or pure black
+                    sample_y++;
+                }
+                sample_x++;
+            }
+        }
+
+        /**
+         * Copies from Pixmap<T>
+         * @tparam T Internal type of Pixmap
+         * @param pixmap Pixmap instance.
+         * @param opacity Opacity of Canvas after copying.
+         */
+        template<typename T>
+        inline void copyFrom(const Pixmap<T> &pixmap) {
+            if (pixmap.getWidth() != width || pixmap.getHeight() != height) {
+                throw std::logic_error("Pixmaps must be of the same dimensions for copying.");
+            } else {
+                int index = 0;
+                for (auto &i : *this) {
+                    i = ColorUtils::getColor<PixelColor>(pixmap.getPixelUnsafe(index));
+                    index++;
+                }
+            }
         }
     };
 

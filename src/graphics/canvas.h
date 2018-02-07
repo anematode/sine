@@ -62,32 +62,6 @@ namespace Sine::Graphics {
         explicit Canvas(const RGBAMap &rgbamap);
 
         /**
-         * Safely pastes a Pixmap at position (x, y), with the top left of the Bitmap coinciding with (x, y).
-         * @tparam T Pixel type of Pixmap.
-         * @param image Pixmap<T> instance.
-         * @param x X coordinate of paste point.
-         * @param y Y coordinate of paste point.
-         */
-        template<typename T>
-        inline void pasteImage(const Pixmap<T> &image, int x = 0, int y = 0) {
-            int minHeight = std::min(height, image.getHeight() + y); // Height to start iterating from
-            int minWidth = std::min(width, image.getWidth() + x); // Width to start iterating from
-
-            int sample_x = -std::min(x, 0); // Height to start iterating from in image
-            int sample_y; // Width to start iterating from in image
-
-            for (int i = std::max(x, 0); i < minWidth; i++) {
-                sample_y = -std::min(y, 0);
-                for (int j = std::max(y, 0); j < minHeight; j++) {
-                    setPixelUnsafe(i, j, ColorUtils::getRGBA(
-                            image.getPixelUnsafe(sample_x, sample_y))); // Set to pure white or pure black
-                    sample_y++;
-                }
-                sample_x++;
-            }
-        }
-
-        /**
          * Given a functor func which takes 1. a reference to a pixel and 2. a const reference to another pixel,
          * and which sets the first reference to something, apply the functor to mix two images together.
          *
@@ -132,31 +106,16 @@ namespace Sine::Graphics {
         }
 
         /**
-         * Copies from Pixmap<T>
-         * @tparam T Internal type of Pixmap
-         * @param pixmap Pixmap instance.
-         * @param opacity Opacity of Canvas after copying.
-         */
-        template<typename T, typename = typename std::enable_if<!std::is_same<T, RGBA>::value>>
-        inline void copyFrom(const Pixmap<T> &pixmap, uint8_t opacity = 255) {
-            if (pixmap.getWidth() != width || pixmap.getHeight() != height) {
-                throw std::logic_error("Pixmaps must be of the same dimensions for copying.");
-            } else {
-                for (int i = 0; i < pixmap.getWidth(); i++) {
-                    for (int j = 0; j < pixmap.getHeight(); j++) {
-                        RGBA k = ColorUtils::getRGBA(pixmap.getPixelUnsafe(i, j));
-                        k.a = opacity;
-
-                        setPixelUnsafe(i, j, k);
-                    }
-                }
-            }
-        }
-
-        /**
          * Uses Pixmap<RGBA> copying.
          */
         using Pixmap<RGBA>::copyFrom;
+
+        // Simple copy and move constructors
+        Canvas &operator=(const Canvas &c);
+
+        Canvas &operator=(Canvas &&c) noexcept;
+
+        using Pixmap<RGBA>::Pixmap;
 
         /**
          * Fills the entire canvas uniformly with a given color.

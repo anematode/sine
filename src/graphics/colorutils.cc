@@ -252,19 +252,83 @@ namespace Sine::Graphics {
             return rgba.a;
         }
 
-        RGBA getRGBA(const RGBA &c) {
+        template<>
+        bool getColor(bool c) {
             return c;
         }
 
-        RGBA getRGBA(const RGB &c) {
+        template<>
+        bool getColor(uint8_t c) {
+            return (c > 128);
+        }
+
+        template<>
+        bool getColor(const RGB &c) {
+            return ((int) c.r + (int) c.g + (int) c.b) > 384;
+        }
+
+        template<>
+        bool getColor(const RGBA &c) {
+            return ((int) c.r + (int) c.g + (int) c.b) * c.a > 98304;
+        }
+
+        template<>
+        uint8_t getColor(bool c) {
+            return c ? 255 : 0;
+        }
+
+        template<>
+        uint8_t getColor(uint8_t c) {
+            return c;
+        }
+
+        template<>
+        uint8_t getColor(const RGB &c) {
+            return std::floor(((int) c.r + (int) c.g + (int) c.b) / 3.0);
+        }
+
+        template<>
+        uint8_t getColor(const RGBA &c) {
+            return (((int) c.r + (int) c.g + (int) c.b) * c.a) / (255 * 3.0);
+        }
+
+        template<>
+        RGB getColor(bool c) {
+            return c ? RGB(255, 255, 255) : RGB(0, 0, 0);
+        }
+
+        template<>
+        RGB getColor(uint8_t c) {
+            return RGB(c, c, c);
+        }
+
+        template<>
+        RGB getColor(const RGB &c) {
+            return c;
+        }
+
+        template<>
+        RGB getColor(const RGBA &c) {
+            return c.rgb();
+        }
+
+        template<>
+        RGBA getColor(const RGBA &c) {
+            return c;
+        }
+
+        template<>
+        RGBA getColor(const RGB &c) {
             return c.rgba();
         }
 
-        RGBA getRGBA(uint8_t c) {
+        template<>
+        RGBA getColor(uint8_t c) {
             return RGBA(c, c, c, 255);
         }
 
-        RGBA getRGBA(bool c) {
+        template<>
+        RGBA getColor(bool c) {
             return (c ? RGBA(255, 255, 255, 255) : RGBA(0, 0, 0, 255));
         }
     }

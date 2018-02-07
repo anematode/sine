@@ -51,11 +51,11 @@ namespace Sine::Math {
 
         /**
          * Distance to (_x, _y).
-         * @param _x x
-         * @param _y y
+         * @param xx x
+         * @param yy y
          * @return distance
          */
-        T distance(T _x, T _y) const;
+        T distance(T xx, T yy) const;
 
         /**
          * Distance to vec.
