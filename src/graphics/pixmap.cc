@@ -602,6 +602,20 @@ namespace Sine::Graphics {
         return getPixel(i);
     }
 
+    template<typename PixelColor>
+    void Pixmap<PixelColor>::setPixelNoThrow(int index, PixelColor c) {
+        if (indexContained(index)) {
+            pixels[index] = c;
+        }
+    }
+
+    template<typename PixelColor>
+    void Pixmap<PixelColor>::setPixelNoThrow(int x, int y, PixelColor c) {
+        if (pairContained(x, y)) {
+            pixels[pairToIndex(x, y)] = c;
+        }
+    }
+
     template
     class Pixmap<RGBA>;
 

@@ -432,6 +432,25 @@ namespace Sine::Graphics {
         void setPixel(int x, int y, PixelColor c);
 
         /**
+         * Sets pixel at index index to c.
+         *
+         * Performs bounds checking.
+         * @param index Index of pixel to set.
+         * @param c Value to set.
+         */
+        void setPixelNoThrow(int index, PixelColor c);
+
+        /**
+         * Sets pixel at (x, y) to c.
+         *
+         * Performs bounds checking.
+         * @param x X coordinate.
+         * @param y Y coordinate.
+         * @param c Value to set.
+         */
+        void setPixelNoThrow(int x, int y, PixelColor c);
+
+        /**
          * Gets pixel at index index.
          *
          * No bounds checking.

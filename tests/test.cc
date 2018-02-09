@@ -1,28 +1,29 @@
 #include "graphics/filters/gaussian_blur.h"
 #include "graphics/canvas.h"
+#include "graphics/algorithms/line.h"
 
 int main() {
     using namespace Sine::Graphics;
+
     {
-        Canvas image_temp{"/Users/timoothy/Desktop/2018-02-05-1.PNG"};
+        const int width = 3200;
+        const int height = 3200;
+
+        Canvas image_temp{width, height};
 
         {
-            Sine::Graphics::Filters::GaussianBlur<2> blur; // smooth out noise
+            image_temp.fill(RGBA(0, 0, 0, 255));
 
-            blur.applyTo(image_temp);
 
-            image_temp.apply([](RGBA &c) {
-                // Implode colors but deterministically
-                c.r += c.g;
-                c.g *= 3;
-                c.b *= 4;
-                c.r *= 2;
-                c.b += c.r;
-
-                c = ColorUtils::darken(c.hsl(), 75).rgba();
-            });
+            for (int i = 0; i < 1000; i++) {
+                Algorithms::drawMaskedBresenham(width / 2, height / 2, width / 2 + 1000 * std::sin(i),
+                                                height / 2 + 1000 * std::cos(i), 0, 0, width, height,
+                                                [&](int x, int y) {
+                                                    image_temp.setPixelNoThrow(x, y, RGBA(255, 255, 255, 255));
+                                                });
+            }
         }
 
-        image_temp.exportToFile("/Users/timoothy/Desktop/edmund.jpg");
+        image_temp.exportToFile("/Users/timoothy/Desktop/edmund.png");
     }
 }
