@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <tuple>
 #include <cmath>
+#include <vector>
 
 namespace Sine {
     namespace Graphics {
@@ -22,7 +23,7 @@ namespace Sine {
              * @param f Function to return results to (i.e. f(x, y) is called for every pixel to fill (x, y))
              */
             template<typename Func>
-            void drawBresenham(int x1, int y1, int x2, int y2, Func f) {
+            inline void drawBresenham(int x1, int y1, int x2, int y2, Func f) {
                 bool steep = std::abs(y2 - y1) > std::abs(x2 - x1);
 
                 if (steep) {
@@ -45,6 +46,9 @@ namespace Sine {
 
                     int error = 2 * delta_x - delta_y;
 
+                    delta_y *= 2;
+                    delta_x *= 2;
+
                     int x_change = (x2 < x1) ? -1 : 1;
                     int x = x1;
 
@@ -52,9 +56,9 @@ namespace Sine {
                         f(x, y);
                         if (error > 0) {
                             x += x_change;
-                            error -= 2 * delta_y;
+                            error -= delta_y;
                         }
-                        error += 2 * delta_x;
+                        error += delta_x;
                     }
                 } else {
                     if (x1 > x2) {
@@ -74,6 +78,9 @@ namespace Sine {
 
                     int error = 2 * delta_y - delta_x;
 
+                    delta_x *= 2;
+                    delta_y *= 2;
+
                     int y_change = (y2 < y1) ? -1 : 1;
                     int y = y1;
 
@@ -81,11 +88,79 @@ namespace Sine {
                         f(x, y);
                         if (error > 0) {
                             y += y_change;
-                            error -= 2 * delta_x;
+                            error -= delta_x;
                         }
-                        error += 2 * delta_y;
+                        error += delta_y;
                     }
                 }
+            }
+
+            /**
+             * Returns length of line segment squared.
+             * @param x1 X coordinate of point 1.
+             * @param y1 Y coordinate of point 1.
+             * @param x2 X coordinate of point 2.
+             * @param y2 Y coordinate of point 2.
+             * @return Length of segment (x1, y1) -- (x2, y2) squared.
+             */
+            float lineLengthSquared(int x1, int y1, int x2, int y2);
+
+            /**
+             * Returns length of line.
+             * @param x1 X coordinate of point 1.
+             * @param y1 Y coordinate of point 1.
+             * @param x2 X coordinate of point 2.
+             * @param y2 Y coordinate of point 2.
+             * @return Length of segment (x1, y1) -- (x2, y2).
+             */
+            float lineLength(int x1, int y1, int x2, int y2);
+
+            /**
+             * Draws a thick line using Bresenham's algorithm (no antialiasing).
+             *
+             * The general strategy is to draw short lines with length @param thickness perpendicular to every pixel of a reference line that has thickness 1.
+             * @tparam Func Type of functor which pixels are forwarded to.
+             * @param x1 X coordinate of point 1.
+             * @param y1 Y coordinate of point 1.
+             * @param x2 X coordinate of point 2.
+             * @param y2 Y coordinate of point 2.
+             * @param thickness Thickness of line to be drawn.
+             * @param f Function where pairs (x, y) are fed to.
+             */
+            template<typename Func>
+            inline void drawBresenhamThick(int x1, int y1, int x2, int y2, float thickness, Func f) {
+                // If the points are the same, this algorithm will be pregnant, so return
+                if (x1 == x2 && y1 == y2) return;
+                thickness /= 2;
+                thickness -= 0.01;
+
+                // Length of given line
+                float lineL = lineLength(x1, y1, x2, y2);
+
+                // Find (x, y) delta of perpendicular line (e.g. (x1 + x_f, y1 + y_f) -- (x1 - x_f, y1 - y_f) is a line segment with length thickness and perpendicular to (x1, y1) -- (x2, y2))
+                float x_f = thickness * (y1 - y2) / lineL;
+                float y_f = -thickness * (x1 - x2) / lineL;
+
+
+                // Use drawBresenham to get the pixels of the perpendicular line, as deltas
+                int cross_point_count =
+                        (std::abs(x_f) + std::abs(y_f)) + 5; // Approximate number of points in the perpendicular line
+
+                std::vector<std::pair<int, int>> cross_points;
+                cross_points.reserve(cross_point_count);
+
+                drawBresenham(-x_f, -y_f, x_f, y_f, [&](int x, int y) {
+                    cross_points.emplace_back(std::make_pair(x, y));
+                    cross_points.emplace_back(
+                            std::make_pair(x + 1, y)); // A little fattening is required so that the line isn't spotty
+                });
+
+                // Do the actual drawing, applying the calculated deltas to every pixel of drawBresenham
+                drawBresenham(x1, y1, x2, y2, [&](int x, int y) {
+                    for (auto &i : cross_points) {
+                        f(x + i.first, y + i.second);
+                    }
+                });
             }
 
             /**
@@ -107,11 +182,58 @@ namespace Sine {
              */
             _line trimLine(int x1, int y1, int x2, int y2, int r_x1, int r_y1, int r_x2, int r_y2);
 
+            /**
+             * Draw Bresenham line, optimizing for parts of the line outside a rectangular boundary.
+             * @tparam Func Type of functor to forward pixel pairs (x, y) to.
+             * @param x1 X coordinate of point 1.
+             * @param y1 Y coordinate of point 1.
+             * @param x2 X coordinate of point 2.
+             * @param y2 Y coordinate of point 2.
+             * @param r_x1 X coordinate of rectangle point 1.
+             * @param r_y1 Y coordinate of rectangle point 1.
+             * @param r_x2 X coordinate of rectangle point 2.
+             * @param r_y2 Y coordinate of rectangle point 2.
+             * @param f Functor to forward pixel pairs (x, y) to.
+             */
             template<typename Func>
-            void drawMaskedBresenham(int x1, int y1, int x2, int y2, int r_x1, int r_y1, int r_x2, int r_y2, Func f) {
-                auto line = trimLine(x1, y1, x2, y2, r_x1, r_y1, r_x2, r_y2);
+            inline void
+            drawMaskedBresenham(int x1, int y1, int x2, int y2, int r_x1, int r_y1, int r_x2, int r_y2, Func f) {
+                auto line = trimLine(x1, y1, x2, y2, r_x1, r_y1, r_x2,
+                                     r_y2); // Trim off parts of the line outside of the boundary
 
                 drawBresenham(std::get<0>(line), std::get<1>(line), std::get<2>(line), std::get<3>(line), f);
+            }
+
+            /**
+             * Draw thick Bresenham line, optimizing for parts of the line outside a rectangular boundary.
+             * @tparam Func Type of functor to forward pixel pairs (x, y) to.
+             * @param x1 X coordinate of point 1.
+             * @param y1 Y coordinate of point 1.
+             * @param x2 X coordinate of point 2.
+             * @param y2 Y coordinate of point 2.
+             * @param thickness Thickness of line.
+             * @param r_x1 X coordinate of rectangle point 1.
+             * @param r_y1 Y coordinate of rectangle point 1.
+             * @param r_x2 X coordinate of rectangle point 2.
+             * @param r_y2 Y coordinate of rectangle point 2.
+             * @param f Functor to forward pixel pairs (x, y) to.
+             */
+            template<typename Func>
+            inline void
+            drawMaskedBresenhamThick(int x1, int y1, int x2, int y2, float thickness, int r_x1, int r_y1, int r_x2,
+                                     int r_y2, Func f) {
+                if (r_x1 > r_x2)
+                    std::swap(r_x1, r_x2);
+
+                if (r_y1 > r_y2)
+                    std::swap(r_y2, r_y2);
+
+                // Trim off parts of the line outside of the boundary, with a margin of thickness
+                auto line = trimLine(x1, y1, x2, y2, r_x1 - thickness, r_y1 - thickness, r_x2 + thickness,
+                                     r_y2 + thickness);
+
+                drawBresenhamThick(std::get<0>(line), std::get<1>(line), std::get<2>(line), std::get<3>(line),
+                                   thickness, f);
             }
 
             /**
