@@ -57,15 +57,16 @@ namespace Sine {
 
                 int n_x1 = x1, n_x2 = x2, n_y1 = y1, n_y2 = y2;
 
-                int intersection_count = 0;
-
                 int minX = std::min(x1, x2);
                 int minY = std::min(y1, y2);
+
+                int intersection_count = 0;
 
                 int maxX = std::max(x1, x2);
                 int maxY = std::max(y1, y2);
 
-                if ((minY < r_y1) && (r_y1 < maxY) && !std::isnan(topX) && (minX < topX) && (topX < maxX)) {
+                if ((minY < r_y1) && (r_y1 < maxY) && !std::isnan(topX) && (minX < topX) && (topX < maxX) &&
+                    (topX > r_x1) && (topX < r_x2)) {
                     // It intersected the top edge, so we adjust the original point with smaller y value
 
                     if (y2 < y1) {
@@ -79,7 +80,8 @@ namespace Sine {
                     intersection_count++;
                 }
 
-                if ((minY < r_y2) && (r_y2 < maxY) && !std::isnan(bottomX) && (minX < bottomX) && (bottomX < maxX)) {
+                if ((minY < r_y2) && (r_y2 < maxY) && !std::isnan(bottomX) && (minX < bottomX) && (bottomX < maxX) &&
+                    (bottomX > r_x1) && (bottomX < r_x2)) {
                     // It intersected the bottom edge, so we adjust the original point with higher y value
 
                     if (y2 > y1) {
@@ -93,7 +95,8 @@ namespace Sine {
                     intersection_count++;
                 }
 
-                if ((minX < r_x1) && (r_x1 < maxX) && !std::isnan(leftY) && (minY < leftY) && (leftY < maxY)) {
+                if ((minX < r_x1) && (r_x1 < maxX) && !std::isnan(leftY) && (minY < leftY) && (leftY < maxY) &&
+                    (leftY > r_y1) && (leftY < r_y2)) {
                     // It intersected the left edge, so we adjust the original point with smaller x value
 
                     if (x2 < x1) {
@@ -107,7 +110,8 @@ namespace Sine {
                     intersection_count++;
                 }
 
-                if ((minX < r_x2) && (r_x2 < maxX) && !std::isnan(rightY) && (minY < rightY) && (rightY < maxY)) {
+                if ((minX < r_x2) && (r_x2 < maxX) && !std::isnan(rightY) && (minY < rightY) && (rightY < maxY) &&
+                    (rightY > r_y1) && (rightY < r_y2)) {
                     // It intersected the right edge, so we adjust the original point with larger x value
 
                     if (x2 > x1) {
@@ -120,6 +124,8 @@ namespace Sine {
 
                     intersection_count++;
                 }
+
+                if (intersection_count == 0) return {-1, -1, -1, -1};
 
                 return {n_x1, n_y1, n_x2, n_y2};
             }

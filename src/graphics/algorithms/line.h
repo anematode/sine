@@ -273,6 +273,11 @@ namespace Sine {
              * @return X coordinate of point
              */
             float lineXAt(int x1, int y1, int x2, int y2, int y_sample);
+
+            template<typename Func>
+            inline void drawXiaolin(float x1, float y1, float x2, float y2) {
+
+            }
         }
     }
 }
