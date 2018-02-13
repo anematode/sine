@@ -35,3 +35,6 @@
 bin
 build
 main
+docs
+cmake-build-debug
+.idea
