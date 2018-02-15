@@ -275,8 +275,43 @@ namespace Sine {
             float lineXAt(int x1, int y1, int x2, int y2, int y_sample);
 
             template<typename Func>
-            inline void drawXiaolin(float x1, float y1, float x2, float y2) {
+            inline void drawXiaolin(float x1, float y1, float x2, float y2, Func f) {
+                float d_x = std::abs(x2 - x1);
+                float x_d = x1 < x2 ? 1 : -1;
+                float d_y = std::abs(y2 - y1);
 
+                float e_d = ((d_x + d_y == 0) ? 1 : std::sqrt(d_x * d_x + d_y * d_y));
+                float y_d = y1 < y2 ? 1 : -1;
+                float error = d_x - d_y;
+                float e2, x3;
+
+                while (true) {
+                    f(x1, y1, 255 * std::abs(error - d_x + d_y) / e_d);
+                    e2 = error;
+                    x3 = x1;
+                    if (2 * e2 >= -d_x) {
+                        if (x1 == x2) {
+                            break;
+                        }
+                        if (d_y + e2 <= e_d) {
+                            f(x1, y1 + y_d, 255 * (e2 + d_y) / e_d);
+                        }
+
+                        x1 += x_d;
+                        error -= d_y;
+                    }
+                    if (2 * e2 <= d_y) {
+                        if (y1 == y2) {
+                            break;
+                        }
+                        if (d_x - e2 <= e_d) {
+                            f(x3 + x_d, y1, 255 * (d_x - e2) / e_d);
+                        }
+
+                        y1 += y_d;
+                        error += d_x;
+                    }
+                }
             }
         }
     }
