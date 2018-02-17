@@ -4,33 +4,35 @@
 
 #include "renderingcontext.h"
 
-namespace Sine::Graphics {
-    RenderingContext::RenderingContext(int width, int height) : Canvas(width, height) {
+namespace Sine::Env {
+    using namespace Sine;
+
+    RenderingContext::RenderingContext(int width, int height) : Graphics::Canvas(width, height) {
 
     }
 
-    RenderingContext::RenderingContext(const Bitmap &p) : Canvas(p) {
+    RenderingContext::RenderingContext(const Bitmap &p) : Graphics::Canvas(p) {
 
     }
 
-    RenderingContext::RenderingContext(const Graymap &p) : Canvas(p) {
+    RenderingContext::RenderingContext(const Graymap &p) : Graphics::Canvas(p) {
 
     }
 
-    RenderingContext::RenderingContext(const RGBMap &p) : Canvas(p) {
+    RenderingContext::RenderingContext(const RGBMap &p) : Graphics::Canvas(p) {
 
     }
 
-    RenderingContext::RenderingContext(const RGBAMap &p) : Canvas(p) {
+    RenderingContext::RenderingContext(const RGBAMap &p) : Graphics::Canvas(p) {
 
     }
 
-    RenderingContext::RenderingContext(const Canvas &p) : Canvas(p) {
+    RenderingContext::RenderingContext(const Canvas &p) : Graphics::Canvas(p) {
 
     }
 
     void RenderingContext::render() {
-        for (auto g: graphics) {
+        for (auto &g: graphics) {
             g.second->render(*this);
         }
     }

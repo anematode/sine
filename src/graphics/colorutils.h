@@ -190,6 +190,22 @@ namespace Sine::Graphics {
         HSLA darken(const HSLA &c, int d);
 
         /**
+         * Darken color
+         * @param c color
+         * @param d lightening amount
+         * @return Darkened color
+         */
+        RGBA darken(const RGBA &c, int d);
+
+        /**
+         * Lighten color
+         * @param c color
+         * @param d lightening amount
+         * @return Lightened color
+         */
+        RGBA lighten(const RGBA &c, int d);
+
+        /**
          * Extract luminance from color.
          * @param rgb color
          * @return luminance

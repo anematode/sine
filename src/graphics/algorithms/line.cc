@@ -43,7 +43,7 @@ namespace Sine {
                 return std::sqrt(lineLengthSquared(x1, y1, x2, y2));
             }
 
-            _line trimLine(int x1, int y1, int x2, int y2, int r_x1, int r_y1, int r_x2, int r_y2) {
+            _line trimLine(float x1, float y1, float x2, float y2, float r_x1, float r_y1, float r_x2, float r_y2) {
                 if (r_x1 > r_x2)
                     std::swap(r_x1, r_x2);
 
@@ -55,15 +55,15 @@ namespace Sine {
                 float bottomX = lineXAt(x1, y1, x2, y2, r_y2);
                 float rightY = lineYAt(x1, y1, x2, y2, r_x2);
 
-                int n_x1 = x1, n_x2 = x2, n_y1 = y1, n_y2 = y2;
+                float n_x1 = x1, n_x2 = x2, n_y1 = y1, n_y2 = y2;
 
-                int minX = std::min(x1, x2);
-                int minY = std::min(y1, y2);
+                float minX = std::min(x1, x2);
+                float minY = std::min(y1, y2);
 
                 int intersection_count = 0;
 
-                int maxX = std::max(x1, x2);
-                int maxY = std::max(y1, y2);
+                float maxX = std::max(x1, x2);
+                float maxY = std::max(y1, y2);
 
                 if ((minY < r_y1) && (r_y1 < maxY) && !std::isnan(topX) && (minX < topX) && (topX < maxX) &&
                     (topX > r_x1) && (topX < r_x2)) {
@@ -125,7 +125,9 @@ namespace Sine {
                     intersection_count++;
                 }
 
-                if (intersection_count == 0) return {-1, -1, -1, -1};
+                if (intersection_count == 0 && (x1 > r_x2 || x1 < r_x1)) {
+                    return {-1, -1, -1, -1};
+                }
 
                 return {n_x1, n_y1, n_x2, n_y2};
             }

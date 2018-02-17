@@ -135,17 +135,17 @@ namespace Sine::Math {
         std::string toString() const;
 
         template<typename U>
-        explicit operator std::complex<U>() const {
+        inline explicit operator std::complex<U>() const {
             return std::complex<U>(x, y);
         }
 
-        void operator+=(const Vec2 &);
+        Vec2 &operator+=(const Vec2 &);
 
-        void operator-=(const Vec2 &);
+        Vec2 &operator-=(const Vec2 &);
 
-        void operator*=(T);
+        Vec2 &operator*=(T);
 
-        void operator/=(T);
+        Vec2 &operator/=(T);
 
         void add(T, T);
 
@@ -157,12 +157,12 @@ namespace Sine::Math {
     };
 
     template<typename T>
-    T Vec2<T>::distance() const {
+    inline T Vec2<T>::distance() const {
         return std::sqrt(x * x + y * y);
     }
 
     template<typename T>
-    T Vec2<T>::distance(T xx, T yy) const {
+    inline T Vec2<T>::distance(T xx, T yy) const {
         T a = x - xx;
         T b = y - yy;
 
@@ -170,17 +170,17 @@ namespace Sine::Math {
     }
 
     template<typename T>
-    T Vec2<T>::distance(const Vec2 &vec) const {
+    inline T Vec2<T>::distance(const Vec2 &vec) const {
         return distance(vec.x, vec.y);
     }
 
     template<typename T>
-    T Vec2<T>::distanceSquared() const {
+    inline T Vec2<T>::distanceSquared() const {
         return x * x + y * y;
     }
 
     template<typename T>
-    T Vec2<T>::distanceSquared(T xx, T yy) const {
+    inline T Vec2<T>::distanceSquared(T xx, T yy) const {
         T a = x - xx;
         T b = y - yy;
 
@@ -188,17 +188,17 @@ namespace Sine::Math {
     }
 
     template<typename T>
-    T Vec2<T>::distanceSquared(const Vec2 &vec) const {
+    inline T Vec2<T>::distanceSquared(const Vec2 &vec) const {
         return distanceSquared(vec.x, vec.y);
     }
 
     template<typename T>
-    bool Vec2<T>::operator==(const Vec2 &vec) const {
+    inline bool Vec2<T>::operator==(const Vec2 &vec) const {
         return (x == vec.x && y == vec.y);
     }
 
     template<typename T>
-    Vec2<T> Vec2<T>::operator+(const Vec2 &vec) const {
+    inline Vec2<T> Vec2<T>::operator+(const Vec2 &vec) const {
         Vec2 result;
 
         result.x = vec.x + x;
@@ -208,7 +208,7 @@ namespace Sine::Math {
     }
 
     template<typename T>
-    Vec2<T> Vec2<T>::operator-(const Vec2 &vec) const {
+    inline Vec2<T> Vec2<T>::operator-(const Vec2 &vec) const {
         Vec2 result;
 
         result.x = vec.x - x;
@@ -218,7 +218,7 @@ namespace Sine::Math {
     }
 
     template<typename T>
-    Vec2<T> Vec2<T>::operator*(T a) const {
+    inline Vec2<T> Vec2<T>::operator*(T a) const {
         Vec2 result;
 
         result.x = x * a;
@@ -228,7 +228,7 @@ namespace Sine::Math {
     }
 
     template<typename T>
-    Vec2<T> Vec2<T>::operator/(T a) const {
+    inline Vec2<T> Vec2<T>::operator/(T a) const {
         Vec2 result;
 
         result.x = x / a;
@@ -238,70 +238,74 @@ namespace Sine::Math {
     }
 
     template<typename T>
-    void Vec2<T>::operator+=(const Vec2 &vec) {
+    inline Vec2 &Vec2<T>::operator+=(const Vec2 &vec) {
         x += vec.x;
         y += vec.y;
+        return *this;
     }
 
     template<typename T>
-    void Vec2<T>::operator-=(const Vec2 &vec) {
+    inline Vec2 &Vec2<T>::operator-=(const Vec2 &vec) {
         x -= vec.x;
         y -= vec.y;
+        return *this;
     }
 
     template<typename T>
-    void Vec2<T>::operator*=(T a) {
+    inline Vec2 &Vec2<T>::operator*=(T a) {
         x *= a;
         y *= a;
+        return *this;
     }
 
     template<typename T>
-    void Vec2<T>::operator/=(T a) {
+    inline Vec2 &Vec2<T>::operator/=(T a) {
         x /= a;
         y /= a;
+        return *this;
     }
 
     template<typename T>
-    void Vec2<T>::add(T x, T y) {
+    inline void Vec2<T>::add(T x, T y) {
         this->x += x;
         this->y += y;
     }
 
     template<typename T>
-    void Vec2<T>::sub(T x, T y) {
+    inline void Vec2<T>::sub(T x, T y) {
         this->x -= x;
         this->y -= y;
     }
 
     template<typename T>
-    void Vec2<T>::stretch(T s) {
+    inline void Vec2<T>::stretch(T s) {
         this->x *= s;
         this->y *= s;
     }
 
     template<typename T>
-    void Vec2<T>::squish(T s) {
+    inline void Vec2<T>::squish(T s) {
         this->x /= s;
         this->y /= s;
     }
 
     template<typename T>
-    std::string Vec2<T>::toString() const {
+    inline std::string Vec2<T>::toString() const {
         return '(' + std::to_string(x) + ',' + std::to_string(y) + ')';
     }
 
     template<typename T, typename U>
-    Vec2<T> operator*(U n, const Vec2<T> &vec) {
+    inline Vec2<T> operator*(U n, const Vec2<T> &vec) {
         return Vec2<T>(vec.x * n, vec.y * n);
     }
 
     template<typename T, typename U>
-    Vec2<T> operator/(U n, const Vec2<T> &vec) {
+    inline Vec2<T> operator/(U n, const Vec2<T> &vec) {
         return Vec2<T>(vec.x / n, vec.y / n);
     }
 
     template<typename T>
-    std::ostream &operator<<(std::ostream &os, const Vec2<T> &v) {
+    inline std::ostream &operator<<(std::ostream &os, const Vec2<T> &v) {
         os << '(' << v.x << ',' << v.y << ')';
         return os;
     }

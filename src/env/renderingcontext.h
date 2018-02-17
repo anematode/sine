@@ -5,13 +5,15 @@
 #ifndef VISUALIZATION_RENDERINGCONTEXT_H
 #define VISUALIZATION_RENDERINGCONTEXT_H
 
-#include "canvas.h"
+#include "graphics/canvas.h"
 #include "graphic.h"
-#include "colorutils.h"
+#include "graphics/colorutils.h"
 #include <vector>
 #include <map>
 
-namespace Sine::Graphics {
+namespace Sine::Env {
+    using namespace Sine::Graphics;
+
     /**
      * Class representing a rendering context which supports graphic children.
      */

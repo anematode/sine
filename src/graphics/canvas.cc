@@ -2,11 +2,14 @@
 // Created by Timothy Herchen on 1/26/18.
 //
 
+#include <graphics/algorithms/circle.h>
 #include "canvas.h"
+#include "graphics/algorithms/line.h"
+#include "graphics/algorithms/bezier.h"
 
 namespace Sine::Graphics {
     Canvas::Canvas(int width, int height) : Pixmap<RGBA>(width, height) {
-
+        fill(RGBA(255, 255, 255, 0));
     }
 
     Canvas::Canvas(const std::string &filename) : Pixmap<RGBA>(
@@ -80,4 +83,56 @@ namespace Sine::Graphics {
 
         return *this;
     };
+
+    void Canvas::drawLineAliased(float x1, float y1, float x2, float y2, const RGBA &color) {
+        Algorithms::drawMaskedBresenham(x1, y1, x2, y2, 0, 0, width, height, [&](int x, int y) {
+            mergePixel(x, y, color);
+        });
+    }
+
+    void Canvas::drawLineAntialiased(float x1, float y1, float x2, float y2, const RGBA &color) {
+        Algorithms::drawMaskedXiaolin(x1, y1, x2, y2, -1, -1, width + 1, height + 1, [&](int x, int y, uint8_t c) {
+            mergePixelNoThrow(x, y, RGBA(color.r, color.g, color.b, 255 - c));
+        });
+    }
+
+    void Canvas::drawThickLineAliased(float x1, float y1, float x2, float y2, float thickness, const RGBA &color) {
+        Algorithms::drawMaskedBresenhamThick(x1, y1, x2, y2, thickness, 0, 0, width, height, [&](int x, int y) {
+            mergePixel(x, y, color);
+        });
+    }
+
+    void Canvas::drawThickLineAntialiased(float x1, float y1, float x2, float y2, float thickness, const RGBA &color) {
+        Algorithms::drawMaskedXiaolinThick(x1, y1, x2, y2, thickness, 0, 0, width, height,
+                                           [&](int x, int y, uint8_t c) {
+
+                                               mergePixel(x, y, RGBA(color.r, color.g, color.b, 255 - c));
+                                           });
+    }
+
+    void
+    Canvas::drawQuadraticBezierAliased(float x1, float y1, float x2, float y2, float x3, float y3, const RGBA &color) {
+        Algorithms::drawQuadraticBezier(x1, y1, x2, y2, x3, y3, [&](int x, int y) {
+            mergePixel(x, y, color);
+        });
+    }
+
+    void Canvas::drawQuadraticBezierAntialiased(float x1, float y1, float x2, float y2, float x3, float y3,
+                                                const RGBA &color) {
+        Algorithms::drawQuadraticBezierAntialiased(x1, y1, x2, y2, x3, y3, [&](int x, int y, uint8_t c) {
+            mergePixel(x, y, RGBA(color.r, color.g, color.b, 255 - c));
+        });
+    }
+
+    void Canvas::drawCircleAliased(float x1, float y1, int r, const RGBA &color) {
+        Algorithms::drawCircle(x1, y1, r, [&](int x, int y) {
+            mergePixel(x, y, color);
+        });
+    }
+
+    void Canvas::drawCircleAntialiased(float x1, float y1, float r, const RGBA &color) {
+        Algorithms::drawCircleAntialiased(x1, y1, r, [&](int x, int y, uint8_t c) {
+            mergePixel(x, y, RGBA(color.r, color.g, color.b, 255 - c));
+        });
+    }
 }

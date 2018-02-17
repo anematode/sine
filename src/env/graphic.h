@@ -5,7 +5,7 @@
 #ifndef VISUALIZATION_GRAPHIC_H
 #define VISUALIZATION_GRAPHIC_H
 
-namespace Sine::Graphics {
+namespace Sine::Env {
     class RenderingContext;
 
     /**

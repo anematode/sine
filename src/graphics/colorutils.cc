@@ -194,6 +194,34 @@ namespace Sine::Graphics {
             return {c.h, c.s, static_cast<color_base>((nl < 0) ? 0 : nl)};
         }
 
+        RGBA darken(const RGBA &c, int d) {
+            int r = c.r;
+            r -= d;
+
+            int g = c.g;
+            g -= d;
+
+            int b = c.b;
+            b -= d;
+
+            return {static_cast<color_base>((r < 0) ? 0 : r), static_cast<color_base>((g < 0) ? 0 : g),
+                    static_cast<color_base>((b < 0) ? 0 : b), c.a};
+        }
+
+        RGBA lighten(const RGBA &c, int d) {
+            int r = c.r;
+            r += d;
+
+            int g = c.g;
+            g += d;
+
+            int b = c.b;
+            b += d;
+
+            return {static_cast<color_base>((r > 255) ? 255 : r), static_cast<color_base>((g > 255) ? 255 : g),
+                    static_cast<color_base>((b > 255) ? 255 : b), c.a};
+        }
+
         HSLA saturate(const HSLA &c, int d) {
             int ns = c.s + d;
             return {c.h, static_cast<color_base>((ns > 255) ? 255 : ns), c.l, c.a};

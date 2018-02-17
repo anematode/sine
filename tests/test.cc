@@ -1,32 +1,36 @@
-#include "graphics/filters/gaussian_blur.h"
+
 #include "graphics/canvas.h"
-#include "graphics/algorithms/line.h"
+#include "graphics/filters/gaussian_blur.h"
 #include "timer.h"
+#include "print.h"
+#include "graphics/algorithms/line.h"
+
+double f(double x) {
+    return 500 * std::cos(x / 40.0);
+}
 
 int main() {
-    using namespace Sine::Graphics;
+    using namespace Sine;
+
+    const int width = 5000;
+    const int height = 5000;
+
+    Graphics::Canvas g{width, height};
+    g.apply([&](Graphics::RGBA &c) {
+        c.a = 255;
+    });
 
     {
-        const int width = 3200;
-        const int height = 3200;
+        General::DefaultTimer d;
 
-        Canvas image_temp{width, height};
-
-        {
-            image_temp.fill(RGBA(0, 0, 0, 255));
-
-            Sine::General::DefaultTimer timer{"bresenham-perf"};
-
-            for (int i = 0; i < 1000; i++) {
-                Algorithms::drawMaskedBresenham(width / 2 + 1000 * std::sin(i), height / 2 + 1000 * std::cos(i),
-                                                width / 2, height / 2, 1900, 1900, width, height,
-                                                [&](int x, int y) {
-                                                    image_temp.setPixelNoThrow(x, y, RGBA(255, 255, 255, 255));
-                                                });
-            }
-        }
-
-
-        image_temp.exportToFile("/Users/timoothy/Desktop/edmund.png");
+        g.drawQuadraticBezier<Graphics::Alias::ALIASED>(100, 100, width / 2, height / 2, 1200, 4000,
+                                                        Graphics::Colors::RED);
     }
+
+    /*Graphics::Filters::GaussianBlur<2> blur;
+    blur.applyTo(g);
+
+    g.sample(1 / 3.0)*/
+
+    g.exportToFile("/Users/timoothy/Desktop/ass.jpg");
 }

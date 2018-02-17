@@ -13,6 +13,12 @@
 #include <algorithm>
 
 namespace Sine::Graphics {
+
+    enum class Alias {
+        ALIASED,
+        ANTIALIASED
+    };
+
     /**
      * Canvas class inheriting from RGBAMap that allows more specific and natural operations than a generic Pixmap.
      */
@@ -104,6 +110,60 @@ namespace Sine::Graphics {
 
             mixImageByFunction(image, udder.func, x, y);
         }
+
+        template<typename C>
+        inline void mergePixel(int x, int y, const C &color) {
+            setPixelUnsafe(x, y, ColorUtils::merge(ColorUtils::getColor<RGBA>(color), getPixel(x, y)));
+        }
+
+        template<typename C>
+        inline void mergePixelUnsafe(int x, int y, const C &color) {
+            setPixelUnsafe(x, y, ColorUtils::merge(ColorUtils::getColor<RGBA>(color), getPixelUnsafe(x, y)));
+        }
+
+        template<typename C>
+        inline void mergePixelNoThrow(int x, int y, const C &color) {
+            setPixelUnsafe(x, y, ColorUtils::merge(ColorUtils::getColor<RGBA>(color), getPixelUnsafe(x, y)));
+        }
+
+#define aliasSelector(name, aliased, antialiased) template <Alias alias = Alias::ANTIALIASED, class ... Types> \
+        inline void name(Types ... args) { \
+            if constexpr (alias == Alias::ALIASED) { \
+                aliased(args...); \
+            } \
+ \
+            if constexpr (alias == Alias::ANTIALIASED) { \
+                antialiased(args...); \
+            } \
+        }
+
+        aliasSelector(drawLine, drawLineAliased, drawLineAntialiased);
+
+        aliasSelector(drawThickLine, drawThickLineAliased, drawThickLineAntialiased);
+
+        aliasSelector(drawQuadraticBezier, drawQuadraticBezierAliased, drawQuadraticBezierAntialiased);
+
+        aliasSelector(drawCircle, drawCircleAliased, drawCircleAntialiased);
+
+        void drawLineAliased(float x1, float y1, float x2, float y2, const RGBA &color = Colors::BLACK);
+
+        void drawLineAntialiased(float x1, float y1, float x2, float y2, const RGBA &color = Colors::BLACK);
+
+        void drawThickLineAliased(float x1, float y1, float x2, float y2, float thickness,
+                                  const RGBA &color = Colors::BLACK);
+
+        void drawThickLineAntialiased(float x1, float y1, float x2, float y2, float thickness,
+                                      const RGBA &color = Colors::BLACK);
+
+        void drawQuadraticBezierAliased(float x1, float y1, float x2, float y2, float x3, float y3,
+                                        const RGBA &color = Colors::BLACK);
+
+        void drawQuadraticBezierAntialiased(float x1, float y1, float x2, float y2, float x3, float y3,
+                                            const RGBA &color = Colors::BLACK);
+
+        void drawCircleAliased(float x1, float y1, int r, const RGBA &color = Colors::BLACK);
+
+        void drawCircleAntialiased(float x1, float y1, float r, const RGBA &color = Colors::BLACK);
 
         /**
          * Uses Pixmap<RGBA> copying.

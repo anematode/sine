@@ -9,10 +9,14 @@
 #include <tuple>
 #include <cmath>
 #include <vector>
+#include "../tests/print.h"
 
 namespace Sine {
     namespace Graphics {
         namespace Algorithms {
+
+            const int MAX_PIXELS_DRAWN = 500000;
+
             /**
              * Draw a line with thickness 1, no aliasing, between points (x1, y1) and (x2, y2).
              * @tparam Func Type of function to yield points to.
@@ -151,22 +155,28 @@ namespace Sine {
 
                 drawBresenham(-x_f, -y_f, x_f, y_f, [&](int x, int y) {
                     cross_points.emplace_back(std::make_pair(x, y));
-                    cross_points.emplace_back(
-                            std::make_pair(x + 1, y)); // A little fattening is required so that the line isn't spotty
                 });
 
                 // Do the actual drawing, applying the calculated deltas to every pixel of drawBresenham
                 drawBresenham(x1, y1, x2, y2, [&](int x, int y) {
                     for (auto &i : cross_points) {
                         f(x + i.first, y + i.second);
+                        f(x + i.first + 1, y + i.second); // fattening
                     }
                 });
             }
 
-            /**
-             * Derpy internal return type
-             */
-            typedef std::tuple<int, int, int, int> _line;
+            namespace {
+                /**
+                 * Derpy internal return type
+                 */
+                typedef std::tuple<float, float, float, float> _line;
+
+                inline bool rejectLine(_line line) {
+                    return (std::get<0>(line) == -1 || std::get<1>(line) == -1 || std::get<2>(line) == -1 ||
+                            std::get<3>(line) == -1);
+                }
+            }
 
             /**
              * Trim line (x1, y1) -- (x2, y2) to be in rectangle (r_x1, r_y1) x (r_x2, r_y2).
@@ -180,7 +190,7 @@ namespace Sine {
              * @param r_y2 Y coordinate of rectangle point 2.
              * @return _line in the format n_x1, n_y1, n_x2, n_y2
              */
-            _line trimLine(int x1, int y1, int x2, int y2, int r_x1, int r_y1, int r_x2, int r_y2);
+            _line trimLine(float x1, float y1, float x2, float y2, float r_x1, float r_y1, float r_x2, float r_y2);
 
             /**
              * Draw Bresenham line, optimizing for parts of the line outside a rectangular boundary.
@@ -200,6 +210,8 @@ namespace Sine {
             drawMaskedBresenham(int x1, int y1, int x2, int y2, int r_x1, int r_y1, int r_x2, int r_y2, Func f) {
                 auto line = trimLine(x1, y1, x2, y2, r_x1, r_y1, r_x2,
                                      r_y2); // Trim off parts of the line outside of the boundary
+
+                if (rejectLine(line)) return;
 
                 drawBresenham(std::get<0>(line), std::get<1>(line), std::get<2>(line), std::get<3>(line), f);
             }
@@ -231,6 +243,8 @@ namespace Sine {
                 // Trim off parts of the line outside of the boundary, with a margin of thickness
                 auto line = trimLine(x1, y1, x2, y2, r_x1 - thickness, r_y1 - thickness, r_x2 + thickness,
                                      r_y2 + thickness);
+
+                if (rejectLine(line)) return;
 
                 drawBresenhamThick(std::get<0>(line), std::get<1>(line), std::get<2>(line), std::get<3>(line),
                                    thickness, f);
@@ -274,8 +288,22 @@ namespace Sine {
              */
             float lineXAt(int x1, int y1, int x2, int y2, int y_sample);
 
+            /**
+             * Draw an anti-aliased line with Xiaolin's algorithm.
+             * @tparam Func Type of functor to be called
+             * @param x1 X coordinate of point 1
+             * @param y1 Y coordinate of point 1
+             * @param x2 X coordinate of point 2
+             * @param y2 Y coordinate of point 2
+             * @param f Functor to be called as f(x, y, brightness)
+             */
             template<typename Func>
             inline void drawXiaolin(float x1, float y1, float x2, float y2, Func f) {
+                if (x1 > x2) {
+                    std::swap(x1, x2);
+                    std::swap(y1, y2);
+                }
+
                 float d_x = std::abs(x2 - x1);
                 float x_d = x1 < x2 ? 1 : -1;
                 float d_y = std::abs(y2 - y1);
@@ -285,33 +313,190 @@ namespace Sine {
                 float error = d_x - d_y;
                 float e2, x3;
 
-                while (true) {
-                    f(x1, y1, 255 * std::abs(error - d_x + d_y) / e_d);
-                    e2 = error;
-                    x3 = x1;
-                    if (2 * e2 >= -d_x) {
-                        if (x1 == x2) {
-                            break;
-                        }
-                        if (d_y + e2 <= e_d) {
-                            f(x1, y1 + y_d, 255 * (e2 + d_y) / e_d);
-                        }
+#define gen_L(op) while (true) { \
+                    f(x1, y1, 255 * std::abs(error - d_x + d_y) / e_d); \
+                    e2 = error; \
+                    x3 = x1; \
+                    if (2 * e2 >= -d_x) { \
+                        if (x1 >= x2) { \
+                            break; \
+                        } \
+                        if (d_y + e2 <= e_d) { \
+                            f(x1, y1 + y_d, 255 * (e2 + d_y) / e_d); \
+                        } \
+ \
+                        x1 += x_d; \
+                        error -= d_y; \
+                    } \
+                    if (2 * e2 <= d_y) { \
+                        if (y1 op y2) { \
+                            break; \
+                        } \
+                        if (d_x - e2 <= e_d) { \
+                            f(x3 + x_d, y1, 255 * (d_x - e2) / e_d); \
+                        } \
+ \
+                        y1 += y_d; \
+                        error += d_x; \
+                    } \
+                }
 
-                        x1 += x_d;
-                        error -= d_y;
+                if (y1 < y2) {
+                    gen_L(>=)
+                } else {
+                    gen_L(<=)
+                }
+            }
+
+            template<typename Func>
+            inline void
+            drawMaskedXiaolin(int x1, int y1, int x2, int y2, int r_x1, int r_y1, int r_x2,
+                              int r_y2, Func f) {
+                if (r_x1 > r_x2)
+                    std::swap(r_x1, r_x2);
+
+                if (r_y1 > r_y2)
+                    std::swap(r_y2, r_y2);
+
+                // Trim off parts of the line outside of the boundary, with a margin of thickness
+                auto line = trimLine(x1, y1, x2, y2, r_x1, r_y1, r_x2, r_y2);
+
+                if (rejectLine(line)) return;
+
+                drawXiaolin(std::get<0>(line), std::get<1>(line), std::get<2>(line), std::get<3>(line), f);
+            }
+
+            /**
+             * Draw a thick anti-aliased line. Note that the line will not have a perpendicular ending edge, unlike the thick bresenham.
+             *
+             * @tparam Func Type of functor to be called
+             * @param x1 X coordinate of point 1
+             * @param y1 Y coordinate of point 1
+             * @param x2 X coordinate of point 2
+             * @param y2 Y coordinate of point 2
+             * @param thickness Thickness of line
+             * @param f Functor to be called as f(x, y, brightness)
+             */
+            template<typename Func>
+            inline void drawXiaolinThick(float x1, float y1, float x2, float y2, float thickness, Func f) {
+                float d_x = std::abs(x2 - x1), x_d = x1 < x2 ? 1 : -1;
+                float d_y = std::abs(y2 - y1), y_d = y1 < y2 ? 1 : -1;
+                float error;
+                float length = std::sqrt(d_x * d_x + d_y * d_y);
+
+                if (thickness <= 1 || length == 0) {
+                    drawXiaolin(x1, y1, x2, y2, f);
+                    return;
+                }
+
+                d_x *= 255 / length;
+                d_y *= 255 / length;
+                thickness = 255 * (thickness - 1);
+
+                if (d_x < d_y) {
+                    x2 = std::round((length + thickness / 2) / d_y);
+                    error = x2 * d_y - thickness / 2;
+                    if (y1 < y2) {
+                        for (x1 -= x2 * x_d;; y1 += y_d) {
+                            f(x2 = x1, y1, error);
+                            for (length = d_y - error - thickness; length + d_y < 255; length += d_y) {
+                                f(x2 += x_d, y1, 0);
+                            }
+                            f(x2 + x_d, y1, length);
+                            if (y1 >= y2) {
+                                break;
+                            }
+                            error += d_x;
+                            if (error > 255) {
+                                error -= d_y;
+                                x1 += x_d;
+                            }
+                        }
+                    } else {
+                        for (x1 -= x2 * x_d;; y1 += y_d) {
+                            f(x2 = x1, y1, error);
+                            for (length = d_y - error - thickness; length + d_y < 255; length += d_y) {
+                                f(x2 += x_d, y1, 0);
+                            }
+                            f(x2 + x_d, y1, length);
+                            if (y1 <= y2) {
+                                break;
+                            }
+                            error += d_x;
+                            if (error > 255) {
+                                error -= d_y;
+                                x1 += x_d;
+                            }
+                        }
                     }
-                    if (2 * e2 <= d_y) {
-                        if (y1 == y2) {
-                            break;
-                        }
-                        if (d_x - e2 <= e_d) {
-                            f(x3 + x_d, y1, 255 * (d_x - e2) / e_d);
-                        }
+                } else {
+                    y2 = std::round((length + thickness / 2) / d_x);
+                    error = y2 * d_x - thickness / 2;
 
-                        y1 += y_d;
-                        error += d_x;
+                    y1 -= y2 * y_d;
+
+                    if (x1 > x2) {
+                        while (true) {
+                            y2 = y1;
+                            f(x1, y2, error);
+                            for (length = d_x - error - thickness; length + d_x < 255; length += d_x) {
+                                y2 += y_d;
+                                f(x1, y2, 0);
+                            }
+                            f(x1, y2 + y_d, length);
+                            if (x1 <= x2) {
+                                break;
+                            }
+                            error += d_y;
+                            if (error > 255) {
+                                error -= d_x;
+                                y1 += y_d;
+                            }
+
+                            x1 += x_d;
+                        }
+                    } else {
+                        while (true) {
+                            y2 = y1;
+                            f(x1, y2, error);
+                            for (length = d_x - error - thickness; length + d_x < 255; length += d_x) {
+                                y2 += y_d;
+                                f(x1, y2, 0);
+                            }
+                            f(x1, y2 + y_d, length);
+                            if (x1 >= x2) {
+                                break;
+                            }
+                            error += d_y;
+                            if (error > 255) {
+                                error -= d_x;
+                                y1 += y_d;
+                            }
+
+                            x1 += x_d;
+                        }
                     }
                 }
+            }
+
+            template<typename Func>
+            inline void
+            drawMaskedXiaolinThick(int x1, int y1, int x2, int y2, float thickness, int r_x1, int r_y1, int r_x2,
+                                   int r_y2, Func f) {
+                if (r_x1 > r_x2)
+                    std::swap(r_x1, r_x2);
+
+                if (r_y1 > r_y2)
+                    std::swap(r_y2, r_y2);
+
+                // Trim off parts of the line outside of the boundary, with a margin of thickness
+                auto line = trimLine(x1, y1, x2, y2, r_x1 - thickness, r_y1 - thickness, r_x2 + thickness,
+                                     r_y2 + thickness);
+
+                if (rejectLine(line)) return;
+
+                drawXiaolinThick(std::get<0>(line), std::get<1>(line), std::get<2>(line), std::get<3>(line),
+                                 thickness, f);
             }
         }
     }
