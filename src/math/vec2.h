@@ -211,8 +211,8 @@ namespace Sine::Math {
     inline Vec2<T> Vec2<T>::operator-(const Vec2 &vec) const {
         Vec2 result;
 
-        result.x = vec.x - x;
-        result.y = vec.y - y;
+        result.x = x - vec.x;
+        result.y = y - vec.y;
 
         return result;
     }
@@ -238,28 +238,28 @@ namespace Sine::Math {
     }
 
     template<typename T>
-    inline Vec2 &Vec2<T>::operator+=(const Vec2 &vec) {
+    inline Vec2<T> &Vec2<T>::operator+=(const Vec2 &vec) {
         x += vec.x;
         y += vec.y;
         return *this;
     }
 
     template<typename T>
-    inline Vec2 &Vec2<T>::operator-=(const Vec2 &vec) {
+    inline Vec2<T> &Vec2<T>::operator-=(const Vec2 &vec) {
         x -= vec.x;
         y -= vec.y;
         return *this;
     }
 
     template<typename T>
-    inline Vec2 &Vec2<T>::operator*=(T a) {
+    inline Vec2<T> &Vec2<T>::operator*=(T a) {
         x *= a;
         y *= a;
         return *this;
     }
 
     template<typename T>
-    inline Vec2 &Vec2<T>::operator/=(T a) {
+    inline Vec2<T> &Vec2<T>::operator/=(T a) {
         x /= a;
         y /= a;
         return *this;

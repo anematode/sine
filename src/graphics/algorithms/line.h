@@ -164,6 +164,8 @@ namespace Sine {
                         f(x + i.first + 1, y + i.second); // fattening
                     }
                 });
+
+
             }
 
             namespace {
@@ -288,6 +290,10 @@ namespace Sine {
              */
             float lineXAt(int x1, int y1, int x2, int y2, int y_sample);
 
+            /*
+             * Algorithm credit to https://gist.github.com/randvoorhies/807ce6e20840ab5314eb7c547899de68
+             */
+
             /**
              * Draw an anti-aliased line with Xiaolin's algorithm.
              * @tparam Func Type of functor to be called
@@ -365,6 +371,10 @@ namespace Sine {
 
                 drawXiaolin(std::get<0>(line), std::get<1>(line), std::get<2>(line), std::get<3>(line), f);
             }
+
+            /*
+             * Algorithm credit to https://gist.github.com/randvoorhies/807ce6e20840ab5314eb7c547899de68
+             */
 
             /**
              * Draw a thick anti-aliased line. Note that the line will not have a perpendicular ending edge, unlike the thick bresenham.

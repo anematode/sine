@@ -118,12 +118,14 @@ namespace Sine::Graphics {
 
         template<typename C>
         inline void mergePixelUnsafe(int x, int y, const C &color) {
-            setPixelUnsafe(x, y, ColorUtils::merge(ColorUtils::getColor<RGBA>(color), getPixelUnsafe(x, y)));
+            setPixelNoThrow(x, y, ColorUtils::merge(ColorUtils::getColor<RGBA>(color), getPixel(x, y)));
         }
 
         template<typename C>
         inline void mergePixelNoThrow(int x, int y, const C &color) {
-            setPixelUnsafe(x, y, ColorUtils::merge(ColorUtils::getColor<RGBA>(color), getPixelUnsafe(x, y)));
+            if (pairContained(x, y)) {
+                mergePixelUnsafe(x, y, color);
+            }
         }
 
 #define aliasSelector(name, aliased, antialiased) template <Alias alias = Alias::ANTIALIASED, class ... Types> \
@@ -145,25 +147,33 @@ namespace Sine::Graphics {
 
         aliasSelector(drawCircle, drawCircleAliased, drawCircleAntialiased);
 
-        void drawLineAliased(float x1, float y1, float x2, float y2, const RGBA &color = Colors::BLACK);
+        virtual void drawLineAliased(float x1, float y1, float x2, float y2, const RGBA &color = Colors::BLACK);
 
-        void drawLineAntialiased(float x1, float y1, float x2, float y2, const RGBA &color = Colors::BLACK);
+        virtual void drawLineAntialiased(float x1, float y1, float x2, float y2, const RGBA &color = Colors::BLACK);
 
-        void drawThickLineAliased(float x1, float y1, float x2, float y2, float thickness,
+        virtual void drawThickLineAliased(float x1, float y1, float x2, float y2, float thickness,
                                   const RGBA &color = Colors::BLACK);
 
-        void drawThickLineAntialiased(float x1, float y1, float x2, float y2, float thickness,
-                                      const RGBA &color = Colors::BLACK);
+        virtual void drawThickLineAntialiased(float x1, float y1, float x2, float y2, float thickness,
+                                              const RGBA &color = Colors::BLACK);
 
-        void drawQuadraticBezierAliased(float x1, float y1, float x2, float y2, float x3, float y3,
-                                        const RGBA &color = Colors::BLACK);
+        virtual void drawQuadraticBezierAliased(float x1, float y1, float x2, float y2, float x3, float y3,
+                                                const RGBA &color = Colors::BLACK);
 
-        void drawQuadraticBezierAntialiased(float x1, float y1, float x2, float y2, float x3, float y3,
-                                            const RGBA &color = Colors::BLACK);
+        virtual void drawQuadraticBezierAntialiased(float x1, float y1, float x2, float y2, float x3, float y3,
+                                                    const RGBA &color = Colors::BLACK);
 
-        void drawCircleAliased(float x1, float y1, int r, const RGBA &color = Colors::BLACK);
+        virtual void drawCircleAliased(float x1, float y1, int r, const RGBA &color = Colors::BLACK);
 
-        void drawCircleAntialiased(float x1, float y1, float r, const RGBA &color = Colors::BLACK);
+        virtual void drawCircleAntialiased(float x1, float y1, float r, const RGBA &color = Colors::BLACK);
+
+        virtual void drawThickCircleAliased(float x1, float y1, int r, float thickness, const RGBA &color);
+
+        virtual void drawFilledCircle(float x1, float y1, int r, const RGBA &color = Colors::BLACK);
+
+        virtual void fillRect(int x1, int y1, int x2, int y2, const RGBA &color);
+
+        virtual Canvas smooth_sample(double d = 0.5);
 
         /**
          * Uses Pixmap<RGBA> copying.
@@ -171,9 +181,9 @@ namespace Sine::Graphics {
         using Pixmap<RGBA>::copyFrom;
 
         // Simple copy and move constructors
-        Canvas &operator=(const Canvas &c);
+        virtual Canvas &operator=(const Canvas &c);
 
-        Canvas &operator=(Canvas &&c) noexcept;
+        virtual Canvas &operator=(Canvas &&c) noexcept;
 
         using Pixmap<RGBA>::Pixmap;
 
@@ -181,12 +191,19 @@ namespace Sine::Graphics {
          * Fills the entire canvas uniformly with a given color.
          * @param color Color fill.
          */
-        void fill(Color color);
+        virtual void fill(Color color);
 
         /**
          * Fills the entire canvas with a completely transparent (i.e. opacity 0) white.
          */
-        void clear();
+        virtual void clear();
+
+        /**
+         * Applies a little blur to the canvas so it looks nicer
+         */
+        virtual void fuzz();
+
+        virtual Canvas spatialAntialias();
     };
 }
 
