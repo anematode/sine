@@ -131,6 +131,14 @@ namespace Sine {
 
                 return {n_x1, n_y1, n_x2, n_y2};
             }
+
+            float getCRatio(float c1, float c2, float c3) {
+                if (c3 - c2 != 0) {
+                    return (c1 - c2) / (c3 - c2);
+                } else {
+                    return 1;
+                }
+            }
         }
     }
 }

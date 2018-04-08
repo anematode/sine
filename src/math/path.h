@@ -11,14 +11,12 @@
 #include "geometry.h"
 
 namespace Sine::Math {
-    class Path : public Geometry {
-        virtual double length() = 0;
-
+    struct Path : public Geometry {
         virtual Vec2d start() = 0;
 
         virtual Vec2d end() = 0;
 
-        virtual void render(Graphics::Canvas &c, Graphics::Pen &pen) = 0;
+        virtual std::vector<Vec2d> sample(int count) = 0;
     };
 }
 

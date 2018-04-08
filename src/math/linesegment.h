@@ -6,6 +6,7 @@
 #define VISUALIZATION_LINESEGMENT_H
 
 #include "path.h"
+#include "geometryutils.h"
 
 namespace Sine::Math {
     struct LineSegment : Path {
@@ -14,7 +15,7 @@ namespace Sine::Math {
 
         LineSegment(double x1, double y1, double x2, double y2);
 
-        LineSegment(Vec2d _p1, Vec2d _p2 = Vec2d(0, 0));
+        explicit LineSegment(Vec2d _p1, Vec2d _p2 = Vec2d(0, 0));
 
         double length() override;
 
@@ -28,7 +29,7 @@ namespace Sine::Math {
 
         Vec2d end() override;
 
-        void render(Graphics::Canvas &canvas, Graphics::Pen &pen) override;
+        void draw(Graphics::Canvas &canvas, Graphics::Pen &pen) override;
 
         double slope();
 
@@ -41,6 +42,14 @@ namespace Sine::Math {
         bool isDegenerate();
 
         BoundingBox boundingBox() override;
+
+        void translateBy(const Vec2d &a) override;
+
+        void rotateBy(GeometryUtils::radians theta, const Vec2d &center) override;
+
+        double area() override;
+
+        std::vector<Vec2d> sample(int count) override;
     };
 }
 

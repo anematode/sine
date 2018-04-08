@@ -10,7 +10,7 @@
 
 namespace Sine {
     namespace Math {
-        class Cycle : public Path {
+        struct Cycle : virtual public Path {
             virtual void fillDraw(Graphics::Canvas &c, Graphics::Pen &p) = 0;
         };
     }

@@ -8,13 +8,14 @@
 
 #include "vec2.h"
 #include "cycle.h"
+#include "point.h"
 
 namespace Sine::Math {
     struct Circle : Cycle {
         double r;
-        Vec2d pos;
+        Point pos;
 
-        Circle(Vec2d _pos, double radius = 1);
+        Circle(double radius, Point pos = {0, 0});
 
         Circle(double x = 0, double y = 0, double radius = 1);
 
@@ -24,11 +25,19 @@ namespace Sine::Math {
 
         Vec2d end() override;
 
-        void render(Graphics::Canvas &c, Graphics::Pen &pen) override;
+        void draw(Graphics::Canvas &c, Graphics::Pen &pen) override;
 
         void fillDraw(Graphics::Canvas &c, Graphics::Pen &pen) override;
 
         BoundingBox boundingBox() override;
+
+        void translateBy(const Vec2d &a) override;
+
+        void rotateBy(GeometryUtils::radians theta, const Vec2d &center) override;
+
+        double area() override;
+
+        std::vector<Vec2d> sample(int count) override;
     };
 }
 

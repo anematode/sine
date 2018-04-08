@@ -2,6 +2,7 @@
 // Created by Timothy Herchen on 2/16/18.
 //
 
+#include <vector>
 #include "linesegment.h"
 
 namespace Sine::Math {
@@ -15,17 +16,11 @@ namespace Sine::Math {
     }
 
     double LineSegment::length() {
-        double x_d = x_delta();
-        double y_d = y_delta();
-
-        return std::sqrt(x_d * x_d + y_d * y_d);
+        return GeometryUtils::distance(p1, p2);
     }
 
     double LineSegment::lengthSquared() {
-        double x_d = x_delta();
-        double y_d = y_delta();
-
-        return x_d * x_d + y_d * y_d;
+        return GeometryUtils::distanceSquared(p1, p2);
     }
 
     double LineSegment::x_delta() {
@@ -64,7 +59,7 @@ namespace Sine::Math {
         return p2;
     }
 
-    void LineSegment::render(Graphics::Canvas &canvas, Graphics::Pen &pen) {
+    void LineSegment::draw(Graphics::Canvas &canvas, Graphics::Pen &pen) {
         if (pen.width > 1) {
             canvas.drawThickLine<Graphics::Alias::ALIASED>(p1.x, p1.y, p2.x, p2.y, pen.width, pen.color);
         } else {
@@ -74,5 +69,33 @@ namespace Sine::Math {
 
     BoundingBox LineSegment::boundingBox() {
         return {p1, p2};
+    }
+
+    void LineSegment::translateBy(const Vec2d &a) {
+        p1 += a;
+    }
+
+    void LineSegment::rotateBy(GeometryUtils::radians theta, const Vec2d &center) {
+        p1 = GeometryUtils::rotate(p1, theta, center);
+        p2 = GeometryUtils::rotate(p2, theta, center);
+    }
+
+    double LineSegment::area() {
+        return 0;
+    }
+
+    std::vector<Vec2d> LineSegment::sample(int count) {
+        std::vector<Vec2d> out;
+
+        double delta_x = p1.x - p2.x;
+        double delta_y = p1.y - p2.y;
+
+        out.push_back(p1);
+        for (int i = 1; i < count; i++) {
+            double c_f = i / (count - 1);
+            out.emplace_back(p1.x + delta_x * c_f, p1.y + delta_y * c_f);
+        }
+
+        return out;
     }
 }

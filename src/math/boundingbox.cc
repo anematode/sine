@@ -33,15 +33,34 @@ namespace Sine {
             return 2 * height() + 2 * width();
         }
 
+        bool BoundingBox::isDegenerate() {
+            return (height() == 0 && width() == 0);
+        }
+
         void BoundingBox::render(Graphics::Canvas &c, Graphics::Pen &p) {
-            Math::LineSegment(c1, Vec2d(c1.x, c2.y)).render(c, p);
-            Math::LineSegment(Vec2d(c1.x, c2.y), c2).render(c, p);
-            Math::LineSegment(c2, Vec2d(c2.x, c1.y)).render(c, p);
-            Math::LineSegment(Vec2d(c2.x, c1.y), c1).render(c, p);
+            Math::LineSegment(c1, Vec2d(c1.x, c2.y)).draw(c, p);
+            Math::LineSegment(Vec2d(c1.x, c2.y), c2).draw(c, p);
+            Math::LineSegment(c2, Vec2d(c2.x, c1.y)).draw(c, p);
+            Math::LineSegment(Vec2d(c2.x, c1.y), c1).draw(c, p);
         }
 
         void BoundingBox::fillDraw(Graphics::Canvas &c, Graphics::Pen &p) {
-            c.fillRect(c1.x, c1.y, c2.x, c2.y, p.fillcolor);
+            c.fillRect(std::round(c1.x), std::round(c1.y), std::round(c2.x), std::round(c2.y), p.fillcolor);
+        }
+
+        BoundingBox unionize(const BoundingBox &c, const BoundingBox &d) {
+            return {GeometryUtils::minElements(c.c1, d.c1), GeometryUtils::maxElements(c.c2, d.c2)};
+        }
+
+        BoundingBox intersect(const BoundingBox &c, const BoundingBox &d) {
+            auto leftCorner = GeometryUtils::maxElements(c.c1, d.c1);
+            auto rightCorner = GeometryUtils::minElements(c.c2, d.c2);
+
+            if (leftCorner.x > rightCorner.x || leftCorner.y > rightCorner.y) {
+                return {0, 0, 0, 0};
+            }
+
+            return {leftCorner, rightCorner};
         }
     }
 }

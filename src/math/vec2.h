@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <ostream>
+#include <cstdlib>
 #include <complex>
 
 namespace Sine::Math {
@@ -114,6 +115,11 @@ namespace Sine::Math {
         Vec2 operator*(T d) const;
 
         /**
+         * Dot product
+         */
+        T operator*(const Vec2 &vec) const;
+
+        /**
          * Division operation.
          * @param d scale factor
          * @return *this / d
@@ -167,6 +173,11 @@ namespace Sine::Math {
         T b = y - yy;
 
         return std::sqrt(a * a + b * b);
+    }
+
+    template<typename T>
+    inline T Vec2<T>::operator*(const Vec2 &vec) const {
+        return vec.x * x + vec.y * y;
     }
 
     template<typename T>

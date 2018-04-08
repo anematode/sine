@@ -119,6 +119,8 @@ namespace Sine {
              */
             float lineLength(int x1, int y1, int x2, int y2);
 
+            float getCRatio(float c1, float c2, float c3);
+
             /**
              * Draws a thick line using Bresenham's algorithm (no antialiasing).
              *
@@ -135,37 +137,92 @@ namespace Sine {
             inline void drawBresenhamThick(int x1, int y1, int x2, int y2, float thickness, Func f) {
                 // If the points are the same, this algorithm will be pregnant, so return
                 if (x1 == x2 && y1 == y2) return;
+
+                if (x1 < x2) {
+                    std::swap(x1, x2);
+                    std::swap(y1, y2);
+                }
+
                 thickness /= 2;
                 thickness -= 0.01;
 
                 // Length of given line
                 float lineL = lineLength(x1, y1, x2, y2);
 
-                // Find (x, y) delta of perpendicular line (e.g. (x1 + x_f, y1 + y_f) -- (x1 - x_f, y1 - y_f) is a line segment with length thickness and perpendicular to (x1, y1) -- (x2, y2))
+                // Find (x, y) delta of perpendicular line (e.g. (x1 + x_f, y1 - y_f) -- (x1 - x_f, y1 + y_f) is a line segment with length thickness and perpendicular to (x1, y1) -- (x2, y2))
                 float x_f = thickness * (y1 - y2) / lineL;
-                float y_f = -thickness * (x1 - x2) / lineL;
+                float y_f = thickness * (x1 - x2) / lineL;
 
+                float minY, maxY;
+                float linterY, rinterY;
+                float minYx, maxYx;
+                float linterYx, rinterYx;
 
-                // Use drawBresenham to get the pixels of the perpendicular line, as deltas
-                int cross_point_count =
-                        (std::abs(x_f) + std::abs(y_f)) + 5; // Approximate number of points in the perpendicular line
-
-                std::vector<std::pair<int, int>> cross_points;
-                cross_points.reserve(cross_point_count);
-
-                drawBresenham(-x_f, -y_f, x_f, y_f, [&](int x, int y) {
-                    cross_points.emplace_back(std::make_pair(x, y));
-                });
-
-                // Do the actual drawing, applying the calculated deltas to every pixel of drawBresenham
-                drawBresenham(x1, y1, x2, y2, [&](int x, int y) {
-                    for (auto &i : cross_points) {
-                        f(x + i.first, y + i.second);
-                        f(x + i.first + 1, y + i.second); // fattening
+                if (y_f > 0) {
+                    if (y1 > y2) {
+                        maxY = y1 + y_f;
+                        minY = y2 - y_f;
+                        maxYx = x1 - x_f;
+                        minYx = x2 + x_f;
+                        linterYx = x2 - x_f;
+                        linterY = y2 + y_f;
+                        rinterYx = x1 + x_f;
+                        rinterY = y1 - y_f;
+                    } else {
+                        maxY = y2 + y_f;
+                        minY = y1 - y_f;
+                        maxYx = x2 - x_f;
+                        minYx = x1 + x_f;
+                        linterYx = x2 + x_f;
+                        linterY = y2 - y_f;
+                        rinterYx = x1 - x_f;
+                        rinterY = y1 + y_f;
                     }
-                });
+                } else {
+                    if (y1 > y2) {
+                        maxY = y1 - y_f;
+                        maxYx = x1 + x_f;
+                        minY = y2 + y_f;
+                        minYx = x2 - x_f;
+                        linterYx = x2 + x_f;
+                        linterY = y2 - y_f;
+                        rinterYx = x1 - x_f;
+                        rinterY = y1 + y_f;
+                    } else {
+                        maxY = y2 - y_f;
+                        minY = y1 + y_f;
+                        maxYx = x1 + x_f;
+                        minYx = x2 - x_f;
+                        linterYx = x2 + x_f;
+                        linterY = y2 - y_f;
+                        rinterYx = x1 - x_f;
+                        rinterY = y1 + y_f;
+                    }
+                }
 
+                auto leftSide = [minY, minYx, linterYx, linterY, maxY, maxYx](int y) -> int {
+                    if (y <= linterY) {
+                        return int(getCRatio(y, minY, linterY) * (linterYx - minYx) + minYx);
+                    } else {
+                        return int(getCRatio(y, linterY, maxY) * (maxYx - linterYx) + linterYx);
+                    }
+                };
 
+                auto rightSide = [minY, minYx, rinterYx, rinterY, maxY, maxYx](int y) -> int {
+                    if (y <= rinterY) {
+                        return int(getCRatio(y, minY, rinterY) * (rinterYx - minYx) + minYx);
+                    } else {
+                        return int(getCRatio(y, rinterY, maxY) * (maxYx - rinterYx) + rinterYx);
+                    }
+                };
+
+                for (int y = minY; y <= maxY; y++) {
+                    int rightS = rightSide(y);
+
+                    for (int x = leftSide(y); x < rightS; x++) {
+                        f(x, y);
+                    }
+                }
             }
 
             namespace {
